@@ -193,9 +193,7 @@ function App() {
         </section>
 
         {/* Expense Chart */}
-          <div style={{ width: '100%', height: '295px' }}>
-            <ExpenseChart expenses={expenses} />
-          </div>
+        <ExpenseChart expenses={expenses} />
 
         {/* Transactions */}
         <section className="dashboard-section">

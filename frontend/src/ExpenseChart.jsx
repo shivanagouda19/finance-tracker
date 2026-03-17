@@ -11,17 +11,17 @@ function ExpenseChart({ expenses }) {
   if (!expenses || expenses.length === 0) {
     return (
       <div style={{
-        padding: '24px',
+        padding: '20px 24px',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--border)',
         background: 'var(--surface-1)',
         textAlign: 'center',
         color: 'var(--text-2)'
       }}>
-        <h3 style={{ margin: '0 0 12px', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-1)' }}>
+        <h3 style={{ margin: '0 0 8px', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-1)' }}>
           Spending by Category
         </h3>
-        <p style={{ margin: '40px 0', fontSize: '0.92rem' }}>Add expenses to see the chart</p>
+        <p style={{ margin: '12px 0', fontSize: '0.92rem' }}>Add expenses to see the chart</p>
       </div>
     );
   }

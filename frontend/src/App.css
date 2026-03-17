@@ -583,3 +583,33 @@ button { font-family: var(--font-body); }
 
   .section-kicker::after { display: none; }
 }
+
+@media (max-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-form,
+  .edit-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .top-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .item-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

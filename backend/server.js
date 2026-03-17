@@ -22,7 +22,8 @@ const ExpenseSchema = new mongoose.Schema({
   userId: String,
   title: String,
   amount: Number,
-  category: { type: String, default: "Other" }
+  category: { type: String, default: "Other" },
+  createdAt: { type: Date, default: Date.now }
 });
 
 const Expense = mongoose.model("Expense", ExpenseSchema);
@@ -163,6 +164,24 @@ app.delete("/expenses/:id", authMiddleware, async (req, res) => {
   }
 
   res.json({ success: true });
+});
+
+app.put("/expenses/:id", authMiddleware, async (req, res) => {
+  const updated = await Expense.findOneAndUpdate(
+    { _id: req.params.id, userId: req.userId },
+    {
+      title: req.body.title,
+      amount: Number(req.body.amount),
+      category: req.body.category || "Other"
+    },
+    { new: true }
+  );
+
+  if (!updated) {
+    return res.status(404).json({ error: "Expense not found" });
+  }
+
+  res.json(updated);
 });
 
 // start server

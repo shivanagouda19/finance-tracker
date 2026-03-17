@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const CATEGORIES = [
   { label: "Food", color: "#f97316" },
@@ -38,6 +40,11 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses }
   const [editTitle, setEditTitle] = useState("");
   const [editAmount, setEditAmount] = useState("");
   const [editCategory, setEditCategory] = useState("Food");
+
+  const now = new Date();
+  const [filterMonth, setFilterMonth] = useState(now.getMonth() + 1);
+  const [filterYear, setFilterYear] = useState(now.getFullYear());
+  const [showAll, setShowAll] = useState(false);
 
   // load expenses from backend
   useEffect(() => {
@@ -156,6 +163,69 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses }
     setEditingId(null);
   }
 
+  const filtered = showAll ? expenses : expenses.filter(exp => {
+    if (!exp.createdAt) return false;
+    const d = new Date(exp.createdAt);
+    return d.getMonth() + 1 === filterMonth && d.getFullYear() === filterYear;
+  });
+
+  const currentYear = new Date().getFullYear();
+  const years = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3];
+  const months = [
+    { value: 1, label: "January" },
+    { value: 2, label: "February" },
+    { value: 3, label: "March" },
+    { value: 4, label: "April" },
+    { value: 5, label: "May" },
+    { value: 6, label: "June" },
+    { value: 7, label: "July" },
+    { value: 8, label: "August" },
+    { value: 9, label: "September" },
+    { value: 10, label: "October" },
+    { value: 11, label: "November" },
+    { value: 12, label: "December" }
+  ];
+
+  function downloadPDF() {
+    const doc = new jsPDF();
+    const period = showAll ? 'All Time' : `${months.find(m => m.value === filterMonth)?.label} ${filterYear}`;
+    
+    doc.setFontSize(18);
+    doc.text('Expense Report', 14, 20);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Period: ${period}`, 14, 28);
+    
+    const rows = filtered.map(exp => [
+      exp.createdAt ? new Date(exp.createdAt).toLocaleDateString('en-IN') : 'N/A',
+      exp.category || 'Other',
+      exp.title,
+      `Rs. ${exp.amount.toLocaleString('en-IN')}`
+    ]);
+
+    const total = filtered.reduce((s, e) => s + e.amount, 0);
+    rows.push(['', '', 'Total', `Rs. ${total.toLocaleString('en-IN')}`]);
+
+    autoTable(doc, {
+      startY: 35,
+      head: [['Date', 'Category', 'Name', 'Amount']],
+      body: rows,
+      headStyles: { fillColor: [15, 32, 39], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [240, 245, 255] },
+      footStyles: { fontStyle: 'bold', fillColor: [220, 230, 240] },
+      columnStyles: {
+        0: { cellWidth: 30 },
+        1: { cellWidth: 30 },
+        2: { cellWidth: 70 },
+        3: { halign: 'right', fontStyle: 'bold', cellWidth: 40 }
+      },
+      styles: { fontSize: 10, cellPadding: 3 }
+    });
+
+    const filename = showAll ? 'expense-report-all.pdf' : `expense-report-${filterMonth}-${filterYear}.pdf`;
+    doc.save(filename);
+  }
+
   return (
     <div className="expense-section">
       <h3 className="section-title">Add New Expense</h3>
@@ -197,8 +267,93 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses }
         <button className="btn btn-primary" onClick={addNewExpense}>Add Expense</button>
       </div>
 
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "10px",
+        padding: "12px 14px",
+        borderRadius: "var(--radius-md)",
+        border: "1px solid var(--border)",
+        background: "var(--surface-2)",
+        marginBottom: "12px",
+        flexWrap: "wrap"
+      }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--text-1)" }}>Filter:</span>
+          <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", color: "var(--text-2)" }}>
+            <input
+              type="checkbox"
+              checked={showAll}
+              onChange={(e) => setShowAll(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            Show All
+          </label>
+          {!showAll && (
+            <>
+              <select
+                value={filterMonth}
+                onChange={(e) => setFilterMonth(Number(e.target.value))}
+                style={{
+                  padding: "0.5rem 0.75rem",
+                  borderRadius: "0.6rem",
+                  border: "1px solid var(--border)",
+                  background: "var(--surface-0)",
+                  color: "var(--text-1)",
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                }}
+              >
+                {months.map(m => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
+              <select
+                value={filterYear}
+                onChange={(e) => setFilterYear(Number(e.target.value))}
+                style={{
+                  padding: "0.5rem 0.75rem",
+                  borderRadius: "0.6rem",
+                  border: "1px solid var(--border)",
+                  background: "var(--surface-0)",
+                  color: "var(--text-1)",
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                }}
+              >
+                {years.map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </>
+          )}
+        </div>
+        <button className="btn btn-secondary" onClick={downloadPDF}>
+          ⬇ Download PDF
+        </button>
+      </div>
+
       <ul className="expense-list">
-        {expenses.map(exp => (
+        {filtered.length === 0 && (
+          <li style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            color: 'var(--text-2)',
+            fontSize: '0.95rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <span style={{ fontSize: '2.5rem' }}>📭</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-1)' }}>No expenses found</span>
+            <span style={{ fontSize: '0.85rem' }}>
+              {showAll ? 'Add your first expense above' : 'No expenses for this period — try Show All or add a new one'}
+            </span>
+          </li>
+        )}
+        {filtered.map(exp => (
           <li key={exp._id} className="expense-item">
             {editingId === exp._id ? (
               <>
