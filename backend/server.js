@@ -58,6 +58,19 @@ const UpcomingPaymentSchema = new mongoose.Schema({
 
 const UpcomingPayment = mongoose.model('UpcomingPayment', UpcomingPaymentSchema);
 
+const GoalSchema = new mongoose.Schema({
+  userId: String,
+  name: String,
+  targetAmount: Number,
+  savedAmount: { type: Number, default: 0 },
+  category: { type: String, default: 'Other' },
+  targetDate: { type: Date, default: null },
+  completed: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Goal = mongoose.model('Goal', GoalSchema);
+
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
@@ -299,6 +312,168 @@ app.delete('/upcoming/:id', authMiddleware, async (req, res) => {
   const removed = await UpcomingPayment.findOneAndDelete({ _id: req.params.id, userId: req.userId });
   if (!removed) return res.status(404).json({ error: 'Not found' });
   res.json({ success: true });
+});
+
+// Get all goals
+app.get('/goals', authMiddleware, async (req, res) => {
+  try {
+    const data = await Goal.find({ userId: req.userId }).sort({ createdAt: -1 });
+    res.json(data);
+  } catch {
+    res.status(500).json({ error: 'Could not fetch goals' });
+  }
+});
+
+// Create goal
+app.post('/goals', authMiddleware, async (req, res) => {
+  try {
+    const goal = new Goal({
+      userId: req.userId,
+      name: req.body.name,
+      targetAmount: Number(req.body.targetAmount),
+      savedAmount: Number(req.body.savedAmount) || 0,
+      category: req.body.category || 'Other',
+      targetDate: req.body.targetDate ? new Date(req.body.targetDate) : null,
+    });
+    if (!goal.name || !goal.targetAmount) {
+      return res.status(400).json({ error: 'Name and target amount are required' });
+    }
+    await goal.save();
+    res.json(goal);
+  } catch {
+    res.status(500).json({ error: 'Could not create goal' });
+  }
+});
+
+// Update goal (add money or edit)
+app.put('/goals/:id', authMiddleware, async (req, res) => {
+  try {
+    const updated = await Goal.findOneAndUpdate(
+      { _id: req.params.id, userId: req.userId },
+      {
+        ...(req.body.name && { name: req.body.name }),
+        ...(req.body.targetAmount && { targetAmount: Number(req.body.targetAmount) }),
+        ...(req.body.savedAmount !== undefined && { savedAmount: Number(req.body.savedAmount) }),
+        ...(req.body.category && { category: req.body.category }),
+        ...(req.body.targetDate !== undefined && { targetDate: req.body.targetDate ? new Date(req.body.targetDate) : null }),
+        ...(req.body.completed !== undefined && { completed: req.body.completed }),
+      },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ error: 'Goal not found' });
+    res.json(updated);
+  } catch {
+    res.status(500).json({ error: 'Could not update goal' });
+  }
+});
+
+// Delete goal
+app.delete('/goals/:id', authMiddleware, async (req, res) => {
+  try {
+    const removed = await Goal.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+    if (!removed) return res.status(404).json({ error: 'Goal not found' });
+    res.json({ success: true });
+  } catch {
+    res.status(500).json({ error: 'Could not delete goal' });
+  }
+});
+
+// Clear all goals (for profile reset)
+app.delete('/goals/all', authMiddleware, async (req, res) => {
+  try {
+    await Goal.deleteMany({ userId: req.userId });
+    res.json({ message: 'All goals cleared' });
+  } catch {
+    res.status(500).json({ error: 'Could not clear goals' });
+  }
+});
+
+// Change password
+app.put('/profile/password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Both passwords required' });
+    }
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) return res.status(400).json({ error: 'Current password is incorrect' });
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ message: 'Password updated successfully' });
+  } catch {
+    res.status(500).json({ error: 'Could not update password' });
+  }
+});
+
+// Get profile
+app.get('/profile', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch {
+    res.status(500).json({ error: 'Could not fetch profile' });
+  }
+});
+
+// Clear all expenses
+app.delete('/expenses/all', authMiddleware, async (req, res) => {
+  try {
+    await Expense.deleteMany({ userId: req.userId });
+    res.json({ message: 'All expenses cleared' });
+  } catch {
+    res.status(500).json({ error: 'Could not clear expenses' });
+  }
+});
+
+// Reset income
+app.put('/received/reset', authMiddleware, async (req, res) => {
+  try {
+    const summaryKey = `user:${req.userId}`;
+    await Summary.findOneAndUpdate(
+      { key: summaryKey },
+      { totalReceived: 0 },
+      { upsert: true }
+    );
+    res.json({ message: 'Income reset successfully' });
+  } catch {
+    res.status(500).json({ error: 'Could not reset income' });
+  }
+});
+
+// Clear all upcoming payments
+app.delete('/upcoming/all', authMiddleware, async (req, res) => {
+  try {
+    await UpcomingPayment.deleteMany({ userId: req.userId });
+    res.json({ message: 'All upcoming payments cleared' });
+  } catch {
+    res.status(500).json({ error: 'Could not clear upcoming payments' });
+  }
+});
+
+// Delete account
+app.delete('/account', authMiddleware, async (req, res) => {
+  try {
+    await Expense.deleteMany({ userId: req.userId });
+    await Summary.deleteMany({ userId: req.userId });
+    await UpcomingPayment.deleteMany({ userId: req.userId });
+    await User.findByIdAndDelete(req.userId);
+    res.json({ message: 'Account deleted successfully' });
+  } catch {
+    res.status(500).json({ error: 'Could not delete account' });
+  }
+});
+
+// Clear all income history
+app.delete('/income/all', authMiddleware, async (req, res) => {
+  try {
+    await Income.deleteMany({ userId: req.userId });
+    res.json({ message: 'All income history cleared' });
+  } catch {
+    res.status(500).json({ error: 'Could not clear income history' });
+  }
 });
 
 // start server

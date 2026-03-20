@@ -7,6 +7,8 @@ import ExpensePage from './components/ExpensePage';
 import IncomePage from './components/IncomePage';
 import UpcomingPayments from './pages/UpcomingPayments';
 import CalendarPage from './pages/CalendarPage';
+import Profile from './pages/Profile';
+import Goals from './pages/Goals';
 import "./App.css";
 
 const MoonIcon = () => (
@@ -197,15 +199,25 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app-shell" data-theme={theme}>
-        <Sidebar onLogout={logout} theme={theme} toggleTheme={toggleTheme} />
-        {token && <TopBar token={token} alerts={urgentAlerts} />}
+        <Sidebar />
+        {token && <TopBar token={token} alerts={urgentAlerts} theme={theme} toggleTheme={toggleTheme} />}
         <div className="main-content">
           <Routes>
             <Route path="/" element={<Dashboard expenses={expenses} totalRecived={totalRecived} />} />
             <Route path="/expenses" element={<ExpensePage token={token} onUnauthorized={logout} expenses={expenses} setExpenses={setExpenses} />} />
             <Route path="/income" element={<IncomePage token={token} onUnauthorized={logout} setTotalRecived={setTotalRecived} incomeList={incomeList} setIncomeList={setIncomeList} />} />
             <Route path="/upcoming" element={<UpcomingPayments token={token} onUnauthorized={logout} onPaymentChange={fetchAlerts} />} />
-            <Route path="/calendar" element={<CalendarPage token={token} onUnauthorized={logout} />} />
+            <Route path="/calendar" element={<CalendarPage token={token} onUnauthorized={logout} expenses={expenses} />} />
+            <Route path="/goals" element={<Goals token={token} onUnauthorized={logout} />} />
+            <Route path="/profile" element={
+              <Profile
+                token={token}
+                onUnauthorized={logout}
+                onLogout={logout}
+                setExpenses={setExpenses}
+                setTotalRecived={setTotalRecived}
+              />
+            } />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

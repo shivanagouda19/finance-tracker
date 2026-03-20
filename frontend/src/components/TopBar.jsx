@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function TopBar({ token, alerts }) {
+export default function TopBar({ token, alerts, theme, toggleTheme }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -43,7 +43,28 @@ export default function TopBar({ token, alerts }) {
       padding: '0 24px',
       zIndex: 99
     }}>
-      <div ref={dropdownRef} style={{ position: 'relative' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border)',
+            background: 'var(--surface-2)',
+            color: 'var(--text-1)',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+        </button>
+
+        <div ref={dropdownRef} style={{ position: 'relative' }}>
         {/* Bell button */}
         <button
           onClick={() => setOpen(p => !p)}
@@ -150,6 +171,7 @@ export default function TopBar({ token, alerts }) {
             )}
           </div>
         )}
+      </div>
       </div>
     </div>
   );
