@@ -715,4 +715,27 @@ button { font-family: var(--font-body); }
 .inv-empty { text-align: center; padding: 2rem; color: var(--text-2); }
 .badge-buy { background: #dcfce7; color: #16a34a; padding: 2px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; }
 .badge-sell { background: #fee2e2; color: #dc2626; padding: 2px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; }
-@media (max-width: 600px) { .investments-page { padding: 1rem; } .inv-summary { flex-direction: column; } }
+.angel-guide-toggle { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; color: var(--text-2); font-size: 0.9rem; }
+.angel-guide-toggle button { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+.angel-guide { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+.angel-guide-step { display: flex; gap: 1rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
+.angel-step-num { width: 32px; height: 32px; min-width: 32px; background: var(--accent); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+.angel-step-content h4 { color: var(--text-1); margin-bottom: 0.25rem; font-size: 0.95rem; }
+.angel-step-content p { color: var(--text-2); font-size: 0.85rem; margin-bottom: 0.4rem; }
+.angel-step-content a { color: var(--accent); font-size: 0.85rem; text-decoration: none; font-weight: 500; }
+.angel-form-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; max-width: 600px; }
+.angel-form-card h3 { font-size: 1.1rem; color: var(--text-1); margin-bottom: 0.25rem; }
+.angel-form-note { color: var(--text-2); font-size: 0.82rem; margin-bottom: 1rem; }
+.angel-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+.angel-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.angel-field label { font-size: 0.82rem; color: var(--text-2); font-weight: 500; }
+.angel-field input { padding: 0.6rem 0.9rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-1); font-size: 0.9rem; }
+.inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+.angel-disconnect-btn { padding: 0.4rem 1rem; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+.angel-expired-banner { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 10px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.9rem; }
+.market-closed-box { text-align: center; padding: 2.5rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 16px; margin: 1rem 0; }
+.market-closed-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.market-closed-box h4 { font-size: 1.1rem; color: var(--text-1); margin-bottom: 0.4rem; }
+.market-closed-box p { color: var(--text-2); font-size: 0.9rem; margin-bottom: 0.25rem; }
+.market-closed-box span { color: var(--accent); font-size: 0.85rem; font-weight: 500; }
+@media (max-width: 600px) { .investments-page { padding: 1rem; } .inv-summary { flex-direction: column; } .angel-form-grid { grid-template-columns: 1fr; } }

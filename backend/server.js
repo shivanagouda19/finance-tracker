@@ -594,9 +594,9 @@ For credits use: {"title":"name","amount":number,"type":"credit","source":"Salar
 });
 
 // Angel One SmartAPI Integration
-const angelLogin = async () => {
+const angelLogin = async (clientCode, pin, totpSecret) => {
   const totp = speakeasy.totp({
-    secret: process.env.ANGEL_TOTP_SECRET,
+    secret: totpSecret,
     encoding: 'base32',
   });
 
@@ -613,8 +613,8 @@ const angelLogin = async () => {
       'X-PrivateKey': process.env.ANGEL_API_KEY,
     },
     body: JSON.stringify({
-      clientcode: process.env.ANGEL_CLIENT_CODE,
-      password: process.env.ANGEL_PIN,
+      clientcode: clientCode,
+      password: pin,
       totp,
     }),
   });
@@ -624,8 +624,8 @@ const angelLogin = async () => {
   return data.data.jwtToken;
 };
 
-const angelHeaders = (jwt) => ({
-  'Authorization': `Bearer ${jwt}`,
+const angelHeaders = (token) => ({
+  'Authorization': `Bearer ${token}`,
   'Content-Type': 'application/json',
   'Accept': 'application/json',
   'X-UserType': 'USER',
@@ -636,37 +636,103 @@ const angelHeaders = (jwt) => ({
   'X-PrivateKey': process.env.ANGEL_API_KEY,
 });
 
+const getValidToken = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user.angelOne?.connected) throw new Error('DISCONNECTED');
+  if (!user.angelOne?.token) throw new Error('TOKEN_EXPIRED');
+  const now = new Date();
+  if (user.angelOne.tokenExpiry && now >= user.angelOne.tokenExpiry) throw new Error('TOKEN_EXPIRED');
+  return user.angelOne.token;
+};
+
+// Check Angel One connection status
+app.get('/angel/status', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user.angelOne?.connected) return res.json({ connected: false });
+    const now = new Date();
+    const expired = !user.angelOne.token || (user.angelOne.tokenExpiry && now >= user.angelOne.tokenExpiry);
+    res.json({ connected: true, expired });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Connect Angel One account
+app.post('/angel/connect', authMiddleware, async (req, res) => {
+  try {
+    const { clientCode, pin, totpSecret } = req.body;
+    if (!clientCode || !pin || !totpSecret) {
+      return res.status(400).json({ error: 'Client ID, MPIN and TOTP Secret are required' });
+    }
+    const token = await angelLogin(clientCode, pin, totpSecret);
+    const tokenExpiry = new Date(Date.now() + 23 * 60 * 60 * 1000);
+    await User.findByIdAndUpdate(req.userId, {
+      'angelOne.token': token,
+      'angelOne.tokenExpiry': tokenExpiry,
+      'angelOne.connected': true,
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Disconnect Angel One account
+app.post('/angel/disconnect', authMiddleware, async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.userId, {
+      'angelOne.token': '',
+      'angelOne.tokenExpiry': null,
+      'angelOne.connected': false,
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/angel/holdings', authMiddleware, async (req, res) => {
   try {
-    const jwt = await angelLogin();
+    const token = await getValidToken(req.userId);
     const response = await fetch('https://apiconnect.angelbroking.com/rest/secure/angelbroking/portfolio/v1/getHolding', {
-      headers: angelHeaders(jwt),
+      headers: angelHeaders(token),
     });
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return res.status(503).json({ error: 'MARKET_CLOSED' });
+    }
     res.json(data.data || []);
   } catch (err) {
+    if (err.message === 'TOKEN_EXPIRED') return res.status(401).json({ error: 'TOKEN_EXPIRED' });
+    if (err.message === 'DISCONNECTED') return res.status(401).json({ error: 'DISCONNECTED' });
     res.status(500).json({ error: err.message });
   }
 });
 
 app.get('/angel/trades', authMiddleware, async (req, res) => {
   try {
-    const jwt = await angelLogin();
+    const token = await getValidToken(req.userId);
     const response = await fetch('https://apiconnect.angelbroking.com/rest/secure/angelbroking/order/v1/getTradeBook', {
-      headers: angelHeaders(jwt),
+      headers: angelHeaders(token),
     });
     const data = await response.json();
     res.json(data.data || []);
   } catch (err) {
+    if (err.message === 'TOKEN_EXPIRED') return res.status(401).json({ error: 'TOKEN_EXPIRED' });
+    if (err.message === 'DISCONNECTED') return res.status(401).json({ error: 'DISCONNECTED' });
     res.status(500).json({ error: err.message });
   }
 });
 
 app.post('/angel/import-trades', authMiddleware, async (req, res) => {
   try {
-    const jwt = await angelLogin();
+    const token = await getValidToken(req.userId);
     const response = await fetch('https://apiconnect.angelbroking.com/rest/secure/angelbroking/order/v1/getTradeBook', {
-      headers: angelHeaders(jwt),
+      headers: angelHeaders(token),
     });
     const data = await response.json();
     const trades = data.data || [];
@@ -699,6 +765,8 @@ app.post('/angel/import-trades', authMiddleware, async (req, res) => {
     
     res.json({ imported: imported.length, trades: imported });
   } catch (err) {
+    if (err.message === 'TOKEN_EXPIRED') return res.status(401).json({ error: 'TOKEN_EXPIRED' });
+    if (err.message === 'DISCONNECTED') return res.status(401).json({ error: 'DISCONNECTED' });
     res.status(500).json({ error: err.message });
   }
 });
