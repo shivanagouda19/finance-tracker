@@ -38,6 +38,9 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
   const [editAmount, setEditAmount] = useState("");
   const [editSource, setEditSource] = useState("Salary");
 
+  const [formErrors, setFormErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
+
   // Load income list from backend
   useEffect(() => {
     fetch("http://localhost:5000/income", {
@@ -64,7 +67,21 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
 
   // Add new income
   async function addNewIncome() {
-    if (!newTitle.trim() || !newAmount) return;
+    const errors = {};
+    if (!newTitle || newTitle.trim() === "") {
+      errors.title = "Source is required";
+    }
+    if (!newAmount || Number(newAmount) <= 0) {
+      errors.amount = "Amount must be greater than 0";
+    } else if (isNaN(newAmount)) {
+      errors.amount = "Amount must be a number";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
 
     const income = {
       title: newTitle,
@@ -96,6 +113,7 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
     setNewTitle("");
     setNewAmount("");
     setNewSource("Salary");
+    setFormErrors({});
   }
 
   function handleAddIncomeKeyDown(event) {
@@ -133,6 +151,21 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
   }
 
   async function saveEdit(id) {
+    const errors = {};
+    if (!editTitle || editTitle.trim() === "") {
+      errors.title = "Source is required";
+    }
+    if (!editAmount || Number(editAmount) <= 0) {
+      errors.amount = "Amount must be greater than 0";
+    } else if (isNaN(editAmount)) {
+      errors.amount = "Amount must be a number";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setEditErrors(errors);
+      return;
+    }
+    setEditErrors({});
     const updated = {
       title: editTitle,
       amount: Number(editAmount),
@@ -162,6 +195,7 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
     setTotalRecived(updatedList.reduce((sum, inc) => sum + inc.amount, 0));
 
     setEditingId(null);
+    setEditErrors({});
   }
 
   return (
@@ -169,38 +203,46 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
       <h3 className="section-title">Add New Income</h3>
 
       <div className="expense-form">
-        <input
-          placeholder="Income source"
-          value={newTitle}
-          onChange={e => setNewTitle(e.target.value)}
-          onKeyDown={handleAddIncomeKeyDown}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <input
+            placeholder="Income source"
+            value={newTitle}
+            onChange={e => { setNewTitle(e.target.value); setFormErrors(prev => ({ ...prev, title: "" })); }}
+            onKeyDown={handleAddIncomeKeyDown}
+          />
+          {formErrors.title && <span className="field-error">{formErrors.title}</span>}
+        </div>
 
-        <input
-          placeholder="Amount"
-          type="number"
-          value={newAmount}
-          onChange={e => setNewAmount(e.target.value)}
-          onKeyDown={handleAddIncomeKeyDown}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <input
+            placeholder="Amount"
+            type="number"
+            value={newAmount}
+            onChange={e => { setNewAmount(e.target.value); setFormErrors(prev => ({ ...prev, amount: "" })); }}
+            onKeyDown={handleAddIncomeKeyDown}
+          />
+          {formErrors.amount && <span className="field-error">{formErrors.amount}</span>}
+        </div>
 
-        <select
-          value={newSource}
-          onChange={e => setNewSource(e.target.value)}
-          style={{
-            padding: "0.6rem 0.75rem",
-            borderRadius: "0.6rem",
-            border: "1px solid var(--border, #2a3a4a)",
-            background: "var(--input-bg, #1a2a3a)",
-            color: "var(--text, #e2e8f0)",
-            fontSize: "0.9rem",
-            cursor: "pointer",
-          }}
-        >
-          {SOURCES.map(src => (
-            <option key={src.label} value={src.label}>{src.label}</option>
-          ))}
-        </select>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <select
+            value={newSource}
+            onChange={e => setNewSource(e.target.value)}
+            style={{
+              padding: "0.6rem 0.75rem",
+              borderRadius: "0.6rem",
+              border: "1px solid var(--border, #2a3a4a)",
+              background: "var(--input-bg, #1a2a3a)",
+              color: "var(--text, #e2e8f0)",
+              fontSize: "0.9rem",
+              cursor: "pointer",
+            }}
+          >
+            {SOURCES.map(src => (
+              <option key={src.label} value={src.label}>{src.label}</option>
+            ))}
+          </select>
+        </div>
 
         <button className="btn btn-primary" onClick={addNewIncome}>Add Income</button>
       </div>
@@ -226,36 +268,45 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
           <li key={inc._id} className="expense-item">
             {editingId === inc._id ? (
               <>
-                <div className="edit-fields">
-                  <input
-                    value={editTitle}
-                    onChange={e => setEditTitle(e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    value={editAmount}
-                    onChange={e => setEditAmount(e.target.value)}
-                  />
-                  <select
-                    value={editSource}
-                    onChange={e => setEditSource(e.target.value)}
-                    style={{
-                      padding: "0.5rem 0.75rem",
-                      borderRadius: "0.6rem",
-                      border: "1px solid var(--border, #2a3a4a)",
-                      background: "var(--input-bg, #1a2a3a)",
-                      color: "var(--text, #e2e8f0)",
-                      fontSize: "0.85rem",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {SOURCES.map(src => (
-                      <option key={src.label} value={src.label}>{src.label}</option>
-                    ))}
-                  </select>
+                <div className="edit-fields" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '8px', flex: 1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <input
+                      value={editTitle}
+                      onChange={e => { setEditTitle(e.target.value); setEditErrors(prev => ({ ...prev, title: "" })); }}
+                    />
+                    {editErrors.title && <span className="field-error">{editErrors.title}</span>}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <input
+                      type="number"
+                      value={editAmount}
+                      onChange={e => { setEditAmount(e.target.value); setEditErrors(prev => ({ ...prev, amount: "" })); }}
+                    />
+                    {editErrors.amount && <span className="field-error">{editErrors.amount}</span>}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gridColumn: '1 / -1' }}>
+                    <select
+                      value={editSource}
+                      onChange={e => setEditSource(e.target.value)}
+                      style={{
+                        padding: "0.5rem 0.75rem",
+                        borderRadius: "0.6rem",
+                        border: "1px solid var(--border, #2a3a4a)",
+                        background: "var(--input-bg, #1a2a3a)",
+                        color: "var(--text, #e2e8f0)",
+                        fontSize: "0.85rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {SOURCES.map(src => (
+                        <option key={src.label} value={src.label}>{src.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div className="item-actions">
                   <button className="btn btn-primary" onClick={() => saveEdit(inc._id)}>Save</button>
+                  <button className="btn btn-secondary" onClick={() => { setEditingId(null); setEditErrors({}); }}>Cancel</button>
                 </div>
               </>
             ) : (

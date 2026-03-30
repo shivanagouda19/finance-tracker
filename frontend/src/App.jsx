@@ -50,6 +50,7 @@ function App() {
   const [authMessage, setAuthMessage] = useState("");
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [totalRecived, setTotalRecived] = useState(0);
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => { localStorage.setItem("theme", theme); }, [theme]);
 
@@ -107,10 +108,22 @@ function App() {
   }
 
   async function handleAuthSubmit() {
-    if (!email.trim() || !password) {
-      setAuthMessage("Email and password are required.");
+    const errors = {};
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Valid email is required";
+    }
+    if (!password || password.trim() === "") {
+      errors.password = "Password is required";
+    } else if (!isLoginMode && password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      setAuthMessage("");
       return;
     }
+    setFormErrors({});
 
     const endpoint = isLoginMode ? "login" : "signup";
     const response = await fetch(`http://localhost:5000/${endpoint}`, {
@@ -130,6 +143,7 @@ function App() {
       setAuthMessage("Account created. Please log in.");
       setIsLoginMode(true);
       setPassword("");
+      setFormErrors({});
       return;
     }
 
@@ -173,24 +187,26 @@ function App() {
                 type="email"
                 placeholder="Email address"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => { setEmail(e.target.value); setFormErrors(prev => ({ ...prev, email: "" })); }}
                 onKeyDown={handleAuthKeyDown}
                 autoComplete="email"
               />
+              {formErrors.email && <span className="field-error">{formErrors.email}</span>}
               <input
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={e => { setPassword(e.target.value); setFormErrors(prev => ({ ...prev, password: "" })); }}
                 onKeyDown={handleAuthKeyDown}
                 autoComplete={isLoginMode ? "current-password" : "new-password"}
               />
+              {formErrors.password && <span className="field-error">{formErrors.password}</span>}
               <button className="btn" onClick={handleAuthSubmit}>
                 {isLoginMode ? "Log in" : "Create account"}
               </button>
               <button
                 className="btn btn-secondary"
-                onClick={() => { setIsLoginMode(p => !p); setAuthMessage(""); }}
+                onClick={() => { setIsLoginMode(p => !p); setAuthMessage(""); setFormErrors({}); }}
               >
                 {isLoginMode ? "Need an account? Sign up" : "Already have an account? Log in"}
               </button>

@@ -23,6 +23,9 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
   const [editDueDate, setEditDueDate] = useState('');
   const [editType, setEditType] = useState('Bill');
 
+  const [formErrors, setFormErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
+
   useEffect(() => {
     fetch('http://localhost:5000/upcoming', {
       headers: { Authorization: `Bearer ${token}` }
@@ -35,7 +38,24 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
   }, [token, onUnauthorized]);
 
   async function addPayment() {
-    if (!name.trim() || !amount || !dueDate) return;
+    const errors = {};
+    if (!name || name.trim() === '') {
+      errors.name = 'Title is required';
+    }
+    if (!amount || Number(amount) <= 0) {
+      errors.amount = 'Amount must be greater than 0';
+    } else if (isNaN(amount)) {
+      errors.amount = 'Amount must be a number';
+    }
+    if (!dueDate) {
+      errors.dueDate = 'Due date is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
     const res = await fetch('http://localhost:5000/upcoming', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -45,6 +65,7 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
     const saved = await res.json();
     setPayments(prev => [...prev, saved].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)));
     setName(''); setAmount(''); setDueDate(''); setType('Bill');
+    setFormErrors({});
     onPaymentChange();
   }
 
@@ -69,7 +90,24 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
   }
 
   async function saveEdit(id) {
-    if (!editName.trim() || !editAmount || !editDueDate) return;
+    const errors = {};
+    if (!editName || editName.trim() === '') {
+      errors.name = 'Title is required';
+    }
+    if (!editAmount || Number(editAmount) <= 0) {
+      errors.amount = 'Amount must be greater than 0';
+    } else if (isNaN(editAmount)) {
+      errors.amount = 'Amount must be a number';
+    }
+    if (!editDueDate) {
+      errors.dueDate = 'Due date is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setEditErrors(errors);
+      return;
+    }
+    setEditErrors({});
     const res = await fetch(`http://localhost:5000/upcoming/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -84,11 +122,13 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
     const updated = await res.json();
     setPayments(prev => prev.map(p => p._id === id ? updated : p).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)));
     setEditingId(null);
+    setEditErrors({});
     onPaymentChange();
   }
 
   function cancelEdit() {
     setEditingId(null);
+    setEditErrors({});
   }
 
   async function deletePayment(id) {
@@ -130,9 +170,18 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
       <div className="card" style={{ marginBottom: '24px', padding: '20px' }}>
         <h3 style={{ margin: '0 0 16px', color: 'var(--text-1)' }}>Add Payment</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '8px' }}>
-          <input placeholder="Payment name" value={name} onChange={e => setName(e.target.value)} />
-          <input placeholder="Amount" type="number" value={amount} onChange={e => setAmount(e.target.value)} />
-          <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <input placeholder="Payment name" value={name} onChange={e => { setName(e.target.value); setFormErrors(prev => ({ ...prev, name: '' })); }} />
+            {formErrors.name && <span className="field-error">{formErrors.name}</span>}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <input placeholder="Amount" type="number" value={amount} onChange={e => { setAmount(e.target.value); setFormErrors(prev => ({ ...prev, amount: '' })); }} />
+            {formErrors.amount && <span className="field-error">{formErrors.amount}</span>}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <input type="date" value={dueDate} onChange={e => { setDueDate(e.target.value); setFormErrors(prev => ({ ...prev, dueDate: '' })); }} />
+            {formErrors.dueDate && <span className="field-error">{formErrors.dueDate}</span>}
+          </div>
           <select value={type} onChange={e => setType(e.target.value)}>
             <option value="Bill">Bill</option>
             <option value="Debt">Debt</option>
@@ -172,9 +221,18 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
               return (
                 <div key={p._id} className="card" style={{ padding: '16px 20px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-                    <input placeholder="Payment name" value={editName} onChange={e => setEditName(e.target.value)} />
-                    <input placeholder="Amount" type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)} />
-                    <input type="date" value={editDueDate} onChange={e => setEditDueDate(e.target.value)} />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <input placeholder="Payment name" value={editName} onChange={e => { setEditName(e.target.value); setEditErrors(prev => ({ ...prev, name: '' })); }} />
+                      {editErrors.name && <span className="field-error">{editErrors.name}</span>}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <input placeholder="Amount" type="number" value={editAmount} onChange={e => { setEditAmount(e.target.value); setEditErrors(prev => ({ ...prev, amount: '' })); }} />
+                      {editErrors.amount && <span className="field-error">{editErrors.amount}</span>}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <input type="date" value={editDueDate} onChange={e => { setEditDueDate(e.target.value); setEditErrors(prev => ({ ...prev, dueDate: '' })); }} />
+                      {editErrors.dueDate && <span className="field-error">{editErrors.dueDate}</span>}
+                    </div>
                     <select value={editType} onChange={e => setEditType(e.target.value)}>
                       <option value="Bill">Bill</option>
                       <option value="Debt">Debt</option>

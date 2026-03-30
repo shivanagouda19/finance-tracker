@@ -125,8 +125,11 @@ app.post("/signup", async (req, res) => {
     const email = (req.body.email || "").trim().toLowerCase();
     const password = req.body.password || "";
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Valid email is required" });
+    }
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
     }
 
     const exists = await User.findOne({ email });
@@ -154,8 +157,11 @@ app.post("/login", async (req, res) => {
     const email = (req.body.email || "").trim().toLowerCase();
     const password = req.body.password || "";
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Valid email is required" });
+    }
+    if (!password || password.trim() === "") {
+      return res.status(400).json({ error: "Password is required" });
     }
 
     const user = await User.findOne({ email });
@@ -180,16 +186,24 @@ app.get("/expenses", authMiddleware, async (req, res) => {
 });
 
 app.post("/expenses", authMiddleware, async (req, res) => {
+  const { title, amount, category } = req.body;
+  
+  if (!title || title.trim() === "") {
+    return res.status(400).json({ error: "Description is required" });
+  }
+  if (!amount || isNaN(amount) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "Amount must be greater than 0" });
+  }
+  if (!category || category.trim() === "") {
+    return res.status(400).json({ error: "Category is required" });
+  }
+
   const expense = new Expense({
     userId: req.userId,
-    title: req.body.title,
-    amount: Math.round(Number(req.body.amount)),
-    category: req.body.category || "Other"
+    title: title.trim(),
+    amount: Math.round(Number(amount)),
+    category: category.trim()
   });
-
-  if (!expense.title || Number.isNaN(expense.amount)) {
-    return res.status(400).json({ error: "Invalid expense" });
-  }
 
   await expense.save();
   res.json(expense);
@@ -216,12 +230,24 @@ app.delete("/expenses/:id", authMiddleware, async (req, res) => {
 });
 
 app.put("/expenses/:id", authMiddleware, async (req, res) => {
+  const { title, amount, category } = req.body;
+  
+  if (!title || title.trim() === "") {
+    return res.status(400).json({ error: "Description is required" });
+  }
+  if (!amount || isNaN(amount) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "Amount must be greater than 0" });
+  }
+  if (!category || category.trim() === "") {
+    return res.status(400).json({ error: "Category is required" });
+  }
+
   const updated = await Expense.findOneAndUpdate(
     { _id: req.params.id, userId: req.userId },
     {
-      title: req.body.title,
-      amount: Math.round(Number(req.body.amount)),
-      category: req.body.category || "Other"
+      title: title.trim(),
+      amount: Math.round(Number(amount)),
+      category: category.trim()
     },
     { new: true }
   );
@@ -240,16 +266,21 @@ app.get("/income", authMiddleware, async (req, res) => {
 });
 
 app.post("/income", authMiddleware, async (req, res) => {
+  const { title, amount, source } = req.body;
+  
+  if (!title || title.trim() === "") {
+    return res.status(400).json({ error: "Source is required" });
+  }
+  if (!amount || isNaN(amount) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "Amount must be greater than 0" });
+  }
+
   const income = new Income({
     userId: req.userId,
-    title: req.body.title,
-    amount: Number(req.body.amount),
-    source: req.body.source || "Other"
+    title: title.trim(),
+    amount: Number(amount),
+    source: source || "Other"
   });
-
-  if (!income.title || Number.isNaN(income.amount)) {
-    return res.status(400).json({ error: "Invalid income" });
-  }
 
   await income.save();
   res.json(income);
@@ -276,12 +307,21 @@ app.delete("/income/:id", authMiddleware, async (req, res) => {
 });
 
 app.put("/income/:id", authMiddleware, async (req, res) => {
+  const { title, amount, source } = req.body;
+  
+  if (!title || title.trim() === "") {
+    return res.status(400).json({ error: "Source is required" });
+  }
+  if (!amount || isNaN(amount) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "Amount must be greater than 0" });
+  }
+
   const updated = await Income.findOneAndUpdate(
     { _id: req.params.id, userId: req.userId },
     {
-      title: req.body.title,
-      amount: Number(req.body.amount),
-      source: req.body.source || "Other"
+      title: title.trim(),
+      amount: Number(amount),
+      source: source || "Other"
     },
     { new: true }
   );
@@ -301,12 +341,24 @@ app.get('/upcoming', authMiddleware, async (req, res) => {
 
 // Add upcoming payment
 app.post('/upcoming', authMiddleware, async (req, res) => {
+  const { name, amount, dueDate, type } = req.body;
+  
+  if (!name || name.trim() === "") {
+    return res.status(400).json({ error: "Title is required" });
+  }
+  if (!amount || isNaN(amount) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "Amount must be greater than 0" });
+  }
+  if (!dueDate) {
+    return res.status(400).json({ error: "Due date is required" });
+  }
+
   const payment = new UpcomingPayment({
     userId: req.userId,
-    name: req.body.name,
-    amount: Number(req.body.amount),
-    dueDate: new Date(req.body.dueDate),
-    type: req.body.type || 'Bill',
+    name: name.trim(),
+    amount: Number(amount),
+    dueDate: new Date(dueDate),
+    type: type || 'Bill',
     status: 'Pending'
   });
   await payment.save();
@@ -315,12 +367,21 @@ app.post('/upcoming', authMiddleware, async (req, res) => {
 
 // Mark as paid or update payment
 app.put('/upcoming/:id', authMiddleware, async (req, res) => {
+  const { name, amount, dueDate, status, type } = req.body;
+  
+  if (name !== undefined && name.trim() === "") {
+    return res.status(400).json({ error: "Title is required" });
+  }
+  if (amount !== undefined && (isNaN(amount) || Number(amount) <= 0)) {
+    return res.status(400).json({ error: "Amount must be greater than 0" });
+  }
+
   const updateData = {};
-  if (req.body.status) updateData.status = req.body.status;
-  if (req.body.name) updateData.name = req.body.name;
-  if (req.body.amount) updateData.amount = Number(req.body.amount);
-  if (req.body.dueDate) updateData.dueDate = new Date(req.body.dueDate);
-  if (req.body.type) updateData.type = req.body.type;
+  if (status) updateData.status = status;
+  if (name) updateData.name = name.trim();
+  if (amount) updateData.amount = Number(amount);
+  if (dueDate) updateData.dueDate = new Date(dueDate);
+  if (type) updateData.type = type;
 
   const updated = await UpcomingPayment.findOneAndUpdate(
     { _id: req.params.id, userId: req.userId },
@@ -361,17 +422,32 @@ app.get('/goals', authMiddleware, async (req, res) => {
 // Create goal
 app.post('/goals', authMiddleware, async (req, res) => {
   try {
+    const { name, targetAmount, savedAmount, category, targetDate } = req.body;
+    
+    if (!name || name.trim() === "") {
+      return res.status(400).json({ error: "Goal name is required" });
+    }
+    if (!targetAmount || isNaN(targetAmount) || Number(targetAmount) <= 0) {
+      return res.status(400).json({ error: "Target amount must be greater than 0" });
+    }
+    if (savedAmount !== undefined && (isNaN(savedAmount) || Number(savedAmount) < 0)) {
+      return res.status(400).json({ error: "Current amount cannot be negative" });
+    }
+    if (savedAmount !== undefined && Number(savedAmount) > Number(targetAmount)) {
+      return res.status(400).json({ error: "Current amount cannot exceed target amount" });
+    }
+    if (targetDate && new Date(targetDate) <= new Date()) {
+      return res.status(400).json({ error: "Deadline must be in the future" });
+    }
+
     const goal = new Goal({
       userId: req.userId,
-      name: req.body.name,
-      targetAmount: Number(req.body.targetAmount),
-      savedAmount: Number(req.body.savedAmount) || 0,
-      category: req.body.category || 'Other',
-      targetDate: req.body.targetDate ? new Date(req.body.targetDate) : null,
+      name: name.trim(),
+      targetAmount: Number(targetAmount),
+      savedAmount: Number(savedAmount) || 0,
+      category: category || 'Other',
+      targetDate: targetDate ? new Date(targetDate) : null,
     });
-    if (!goal.name || !goal.targetAmount) {
-      return res.status(400).json({ error: 'Name and target amount are required' });
-    }
     await goal.save();
     res.json(goal);
   } catch {
@@ -382,15 +458,33 @@ app.post('/goals', authMiddleware, async (req, res) => {
 // Update goal (add money or edit)
 app.put('/goals/:id', authMiddleware, async (req, res) => {
   try {
+    const { name, targetAmount, savedAmount, category, targetDate, completed } = req.body;
+    
+    if (name !== undefined && name.trim() === "") {
+      return res.status(400).json({ error: "Goal name is required" });
+    }
+    if (targetAmount !== undefined && (isNaN(targetAmount) || Number(targetAmount) <= 0)) {
+      return res.status(400).json({ error: "Target amount must be greater than 0" });
+    }
+    if (savedAmount !== undefined && (isNaN(savedAmount) || Number(savedAmount) < 0)) {
+      return res.status(400).json({ error: "Current amount cannot be negative" });
+    }
+    if (savedAmount !== undefined && targetAmount !== undefined && Number(savedAmount) > Number(targetAmount)) {
+      return res.status(400).json({ error: "Current amount cannot exceed target amount" });
+    }
+    if (targetDate !== undefined && targetDate && new Date(targetDate) <= new Date()) {
+      return res.status(400).json({ error: "Deadline must be in the future" });
+    }
+
     const updated = await Goal.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },
       {
-        ...(req.body.name && { name: req.body.name }),
-        ...(req.body.targetAmount && { targetAmount: Number(req.body.targetAmount) }),
-        ...(req.body.savedAmount !== undefined && { savedAmount: Number(req.body.savedAmount) }),
-        ...(req.body.category && { category: req.body.category }),
-        ...(req.body.targetDate !== undefined && { targetDate: req.body.targetDate ? new Date(req.body.targetDate) : null }),
-        ...(req.body.completed !== undefined && { completed: req.body.completed }),
+        ...(name && { name: name.trim() }),
+        ...(targetAmount && { targetAmount: Number(targetAmount) }),
+        ...(savedAmount !== undefined && { savedAmount: Number(savedAmount) }),
+        ...(category && { category }),
+        ...(targetDate !== undefined && { targetDate: targetDate ? new Date(targetDate) : null }),
+        ...(completed !== undefined && { completed }),
       },
       { new: true }
     );
@@ -426,8 +520,14 @@ app.delete('/goals/:id', authMiddleware, async (req, res) => {
 app.put('/profile/password', authMiddleware, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ error: 'Both passwords required' });
+    if (!currentPassword || currentPassword.trim() === "") {
+      return res.status(400).json({ error: 'Current password is required' });
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
     }
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ error: 'User not found' });

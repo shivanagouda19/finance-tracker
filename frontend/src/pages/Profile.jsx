@@ -52,6 +52,7 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
   const [confirm, setConfirm] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
   const [currency, setCurrency] = useState(localStorage.getItem('currency') || '₹');
+  const [passwordErrors, setPasswordErrors] = useState({});
 
   useEffect(() => {
     fetch('http://localhost:5000/profile', {
@@ -69,17 +70,29 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
   }, [token, onUnauthorized]);
 
   async function changePassword() {
-    setPasswordMsg('');
-    setPasswordError(false);
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordMsg('All fields are required'); setPasswordError(true); return;
+    const errors = {};
+    if (!currentPassword || currentPassword.trim() === '') {
+      errors.currentPassword = 'Current password is required';
+    }
+    if (!newPassword || newPassword.length < 6) {
+      errors.newPassword = 'New password must be at least 6 characters';
     }
     if (newPassword !== confirmPassword) {
-      setPasswordMsg('New passwords do not match'); setPasswordError(true); return;
+      errors.confirmPassword = 'Passwords do not match';
     }
-    if (newPassword.length < 6) {
-      setPasswordMsg('New password must be at least 6 characters'); setPasswordError(true); return;
+    if (currentPassword === newPassword) {
+      errors.newPassword = 'New password must be different';
     }
+
+    if (Object.keys(errors).length > 0) {
+      setPasswordErrors(errors);
+      setPasswordMsg('');
+      setPasswordError(false);
+      return;
+    }
+    setPasswordErrors({});
+    setPasswordMsg('');
+    setPasswordError(false);
     const res = await fetch('http://localhost:5000/profile/password', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -90,6 +103,7 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
     setPasswordMsg('Password updated successfully!');
     setPasswordError(false);
     setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+    setPasswordErrors({});
   }
 
   async function handleReset(type) {
@@ -173,9 +187,18 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
       {/* Change Password */}
       <Section title="Change Password">
         <div style={{ display: 'grid', gap: '12px', maxWidth: '400px' }}>
-          <input type="password" placeholder="Current password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} />
-          <input type="password" placeholder="New password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
-          <input type="password" placeholder="Confirm new password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <input type="password" placeholder="Current password" value={currentPassword} onChange={e => { setCurrentPassword(e.target.value); setPasswordErrors(prev => ({ ...prev, currentPassword: '' })); }} />
+            {passwordErrors.currentPassword && <span className="field-error">{passwordErrors.currentPassword}</span>}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <input type="password" placeholder="New password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setPasswordErrors(prev => ({ ...prev, newPassword: '' })); }} />
+            {passwordErrors.newPassword && <span className="field-error">{passwordErrors.newPassword}</span>}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <input type="password" placeholder="Confirm new password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setPasswordErrors(prev => ({ ...prev, confirmPassword: '' })); }} />
+            {passwordErrors.confirmPassword && <span className="field-error">{passwordErrors.confirmPassword}</span>}
+          </div>
           {passwordMsg && (
             <p style={{ fontSize: '0.85rem', color: passwordError ? '#ef4444' : '#22c55e', margin: 0 }}>{passwordMsg}</p>
           )}

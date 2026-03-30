@@ -43,6 +43,8 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
   const [editCategory, setEditCategory] = useState("Food");
 
   const [showImporter, setShowImporter] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
 
   const now = new Date();
   const [filterMonth, setFilterMonth] = useState(now.getMonth() + 1);
@@ -71,7 +73,24 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
 
   // add expense to backend
   async function addNewExpense() {
-    if (!newTitle.trim() || !newAmount) return;
+    const errors = {};
+    if (!newTitle || newTitle.trim() === "") {
+      errors.title = "Description is required";
+    }
+    if (!newAmount || Number(newAmount) <= 0) {
+      errors.amount = "Amount must be greater than 0";
+    } else if (isNaN(newAmount)) {
+      errors.amount = "Amount must be a number";
+    }
+    if (!newCategory) {
+      errors.category = "Category is required";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
 
     const expense = {
       title: newTitle,
@@ -100,6 +119,7 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
     setNewTitle("");
     setNewAmount("");
     setNewCategory("Food");
+    setFormErrors({});
   }
 
   function handleAddExpenseKeyDown(event) {
@@ -135,6 +155,24 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
   }
 
   async function saveEdit(id) {
+    const errors = {};
+    if (!editTitle || editTitle.trim() === "") {
+      errors.title = "Description is required";
+    }
+    if (!editAmount || Number(editAmount) <= 0) {
+      errors.amount = "Amount must be greater than 0";
+    } else if (isNaN(editAmount)) {
+      errors.amount = "Amount must be a number";
+    }
+    if (!editCategory) {
+      errors.category = "Category is required";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setEditErrors(errors);
+      return;
+    }
+    setEditErrors({});
     const updated = {
       title: editTitle,
       amount: Number(editAmount),
@@ -164,6 +202,7 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
     );
 
     setEditingId(null);
+    setEditErrors({});
   }
 
   const filtered = showAll ? expenses : expenses.filter(exp => {
@@ -239,38 +278,47 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
       </div>
 
       <div className="expense-form">
-        <input
-          placeholder="Expense name"
-          value={newTitle}
-          onChange={e => setNewTitle(e.target.value)}
-          onKeyDown={handleAddExpenseKeyDown}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <input
+            placeholder="Expense name"
+            value={newTitle}
+            onChange={e => { setNewTitle(e.target.value); setFormErrors(prev => ({ ...prev, title: "" })); }}
+            onKeyDown={handleAddExpenseKeyDown}
+          />
+          {formErrors.title && <span className="field-error">{formErrors.title}</span>}
+        </div>
 
-        <input
-          placeholder="Amount"
-          type="number"
-          value={newAmount}
-          onChange={e => setNewAmount(e.target.value)}
-          onKeyDown={handleAddExpenseKeyDown}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <input
+            placeholder="Amount"
+            type="number"
+            value={newAmount}
+            onChange={e => { setNewAmount(e.target.value); setFormErrors(prev => ({ ...prev, amount: "" })); }}
+            onKeyDown={handleAddExpenseKeyDown}
+          />
+          {formErrors.amount && <span className="field-error">{formErrors.amount}</span>}
+        </div>
 
-        <select
-          value={newCategory}
-          onChange={e => setNewCategory(e.target.value)}
-          style={{
-            padding: "0.6rem 0.75rem",
-            borderRadius: "0.6rem",
-            border: "1px solid var(--border, #2a3a4a)",
-            background: "var(--input-bg, #1a2a3a)",
-            color: "var(--text, #e2e8f0)",
-            fontSize: "0.9rem",
-            cursor: "pointer",
-          }}
-        >
-          {CATEGORIES.map(cat => (
-            <option key={cat.label} value={cat.label}>{cat.label}</option>
-          ))}
-        </select>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <select
+            value={newCategory}
+            onChange={e => { setNewCategory(e.target.value); setFormErrors(prev => ({ ...prev, category: "" })); }}
+            style={{
+              padding: "0.6rem 0.75rem",
+              borderRadius: "0.6rem",
+              border: "1px solid var(--border, #2a3a4a)",
+              background: "var(--input-bg, #1a2a3a)",
+              color: "var(--text, #e2e8f0)",
+              fontSize: "0.9rem",
+              cursor: "pointer",
+            }}
+          >
+            {CATEGORIES.map(cat => (
+              <option key={cat.label} value={cat.label}>{cat.label}</option>
+            ))}
+          </select>
+          {formErrors.category && <span className="field-error">{formErrors.category}</span>}
+        </div>
 
         <button className="btn btn-primary" onClick={addNewExpense}>Add Expense</button>
       </div>
@@ -365,36 +413,46 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
           <li key={exp._id} className="expense-item">
             {editingId === exp._id ? (
               <>
-                <div className="edit-fields">
-                  <input
-                    value={editTitle}
-                    onChange={e => setEditTitle(e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    value={editAmount}
-                    onChange={e => setEditAmount(e.target.value)}
-                  />
-                  <select
-                    value={editCategory}
-                    onChange={e => setEditCategory(e.target.value)}
-                    style={{
-                      padding: "0.5rem 0.75rem",
-                      borderRadius: "0.6rem",
-                      border: "1px solid var(--border, #2a3a4a)",
-                      background: "var(--input-bg, #1a2a3a)",
-                      color: "var(--text, #e2e8f0)",
-                      fontSize: "0.85rem",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {CATEGORIES.map(cat => (
-                      <option key={cat.label} value={cat.label}>{cat.label}</option>
-                    ))}
-                  </select>
+                <div className="edit-fields" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '8px', flex: 1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <input
+                      value={editTitle}
+                      onChange={e => { setEditTitle(e.target.value); setEditErrors(prev => ({ ...prev, title: "" })); }}
+                    />
+                    {editErrors.title && <span className="field-error">{editErrors.title}</span>}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <input
+                      type="number"
+                      value={editAmount}
+                      onChange={e => { setEditAmount(e.target.value); setEditErrors(prev => ({ ...prev, amount: "" })); }}
+                    />
+                    {editErrors.amount && <span className="field-error">{editErrors.amount}</span>}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gridColumn: '1 / -1' }}>
+                    <select
+                      value={editCategory}
+                      onChange={e => { setEditCategory(e.target.value); setEditErrors(prev => ({ ...prev, category: "" })); }}
+                      style={{
+                        padding: "0.5rem 0.75rem",
+                        borderRadius: "0.6rem",
+                        border: "1px solid var(--border, #2a3a4a)",
+                        background: "var(--input-bg, #1a2a3a)",
+                        color: "var(--text, #e2e8f0)",
+                        fontSize: "0.85rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {CATEGORIES.map(cat => (
+                        <option key={cat.label} value={cat.label}>{cat.label}</option>
+                      ))}
+                    </select>
+                    {editErrors.category && <span className="field-error">{editErrors.category}</span>}
+                  </div>
                 </div>
                 <div className="item-actions">
                   <button className="btn btn-primary" onClick={() => saveEdit(exp._id)}>Save</button>
+                  <button className="btn btn-secondary" onClick={() => { setEditingId(null); setEditErrors({}); }}>Cancel</button>
                 </div>
               </>
             ) : (

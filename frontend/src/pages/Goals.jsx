@@ -48,6 +48,9 @@ export default function Goals({ token, onUnauthorized }) {
   const [addMoneyId, setAddMoneyId] = useState(null);
   const [addMoneyAmount, setAddMoneyAmount] = useState('');
   const [editingGoal, setEditingGoal] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
+  const [addMoneyError, setAddMoneyError] = useState('');
 
   useEffect(() => {
     fetch('http://localhost:5000/goals', {
@@ -61,7 +64,30 @@ export default function Goals({ token, onUnauthorized }) {
   }, [token]);
 
   async function addGoal() {
-    if (!name.trim() || !targetAmount) return;
+    const errors = {};
+    if (!name || name.trim() === '') {
+      errors.name = 'Goal name is required';
+    }
+    if (!targetAmount || Number(targetAmount) <= 0) {
+      errors.targetAmount = 'Target amount must be greater than 0';
+    } else if (isNaN(targetAmount)) {
+      errors.targetAmount = 'Target amount must be a number';
+    }
+    if (savedAmount && Number(savedAmount) < 0) {
+      errors.savedAmount = 'Current amount cannot be negative';
+    }
+    if (savedAmount && Number(savedAmount) > Number(targetAmount)) {
+      errors.savedAmount = 'Cannot exceed target amount';
+    }
+    if (targetDate && new Date(targetDate) <= new Date()) {
+      errors.targetDate = 'Deadline must be in the future';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
     const res = await fetch('http://localhost:5000/goals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -73,10 +99,19 @@ export default function Goals({ token, onUnauthorized }) {
     setGoals(prev => [saved, ...prev]);
     setName(''); setTargetAmount(''); setSavedAmount(''); setCategory('Other'); setTargetDate('');
     setShowForm(false);
+    setFormErrors({});
   }
 
   async function addMoney(id) {
-    if (!addMoneyAmount) return;
+    if (!addMoneyAmount || Number(addMoneyAmount) <= 0) {
+      setAddMoneyError('Amount must be greater than 0');
+      return;
+    }
+    if (isNaN(addMoneyAmount)) {
+      setAddMoneyError('Amount must be a number');
+      return;
+    }
+    setAddMoneyError('');
     const goal = goals.find(g => g._id === id);
     const newSaved = goal.savedAmount + Number(addMoneyAmount);
     const completed = newSaved >= goal.targetAmount;
@@ -90,6 +125,7 @@ export default function Goals({ token, onUnauthorized }) {
     setGoals(prev => prev.map(g => g._id === id ? updated : g));
     setAddMoneyId(null);
     setAddMoneyAmount('');
+    setAddMoneyError('');
   }
 
   async function deleteGoal(id) {
@@ -102,6 +138,24 @@ export default function Goals({ token, onUnauthorized }) {
   }
 
   async function saveEdit() {
+    const errors = {};
+    if (!editingGoal.name || editingGoal.name.trim() === '') {
+      errors.name = 'Goal name is required';
+    }
+    if (!editingGoal.targetAmount || Number(editingGoal.targetAmount) <= 0) {
+      errors.targetAmount = 'Target amount must be greater than 0';
+    } else if (isNaN(editingGoal.targetAmount)) {
+      errors.targetAmount = 'Target amount must be a number';
+    }
+    if (editingGoal.targetDate && new Date(editingGoal.targetDate) <= new Date()) {
+      errors.targetDate = 'Deadline must be in the future';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setEditErrors(errors);
+      return;
+    }
+    setEditErrors({});
     const res = await fetch(`http://localhost:5000/goals/${editingGoal._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -116,6 +170,7 @@ export default function Goals({ token, onUnauthorized }) {
     const updated = await res.json();
     setGoals(prev => prev.map(g => g._id === updated._id ? updated : g));
     setEditingGoal(null);
+    setEditErrors({});
   }
 
   const active = goals.filter(g => !g.completed);
@@ -138,17 +193,29 @@ export default function Goals({ token, onUnauthorized }) {
         <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
           <h3 style={{ margin: '0 0 16px', color: 'var(--text-1)' }}>Create New Goal</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-            <input placeholder="Goal name (e.g. New Laptop)" value={name} onChange={e => setName(e.target.value)} />
-            <input placeholder="Target amount" type="number" value={targetAmount} onChange={e => setTargetAmount(e.target.value)} />
-            <input placeholder="Already saved (optional)" type="number" value={savedAmount} onChange={e => setSavedAmount(e.target.value)} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <input placeholder="Goal name (e.g. New Laptop)" value={name} onChange={e => { setName(e.target.value); setFormErrors(prev => ({ ...prev, name: '' })); }} />
+              {formErrors.name && <span className="field-error">{formErrors.name}</span>}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <input placeholder="Target amount" type="number" value={targetAmount} onChange={e => { setTargetAmount(e.target.value); setFormErrors(prev => ({ ...prev, targetAmount: '' })); }} />
+              {formErrors.targetAmount && <span className="field-error">{formErrors.targetAmount}</span>}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <input placeholder="Already saved (optional)" type="number" value={savedAmount} onChange={e => { setSavedAmount(e.target.value); setFormErrors(prev => ({ ...prev, savedAmount: '' })); }} />
+              {formErrors.savedAmount && <span className="field-error">{formErrors.savedAmount}</span>}
+            </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '12px' }}>
             <select value={category} onChange={e => setCategory(e.target.value)}
               style={{ padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)', fontSize: '0.9rem' }}>
               {GOAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)}
-              style={{ padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)', fontSize: '0.9rem' }} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <input type="date" value={targetDate} onChange={e => { setTargetDate(e.target.value); setFormErrors(prev => ({ ...prev, targetDate: '' })); }}
+                style={{ padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)', fontSize: '0.9rem' }} />
+              {formErrors.targetDate && <span className="field-error">{formErrors.targetDate}</span>}
+            </div>
             <button className="btn btn-primary" onClick={addGoal}>Create Goal</button>
           </div>
         </div>
@@ -175,18 +242,27 @@ export default function Goals({ token, onUnauthorized }) {
               <div key={goal._id} className="card" style={{ padding: '20px' }}>
                 {editingGoal?._id === goal._id ? (
                   <div style={{ display: 'grid', gap: '10px' }}>
-                    <input value={editingGoal.name} onChange={e => setEditingGoal(p => ({ ...p, name: e.target.value }))} />
-                    <input type="number" value={editingGoal.targetAmount} onChange={e => setEditingGoal(p => ({ ...p, targetAmount: e.target.value }))} />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <input value={editingGoal.name} onChange={e => { setEditingGoal(p => ({ ...p, name: e.target.value })); setEditErrors(prev => ({ ...prev, name: '' })); }} />
+                      {editErrors.name && <span className="field-error">{editErrors.name}</span>}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <input type="number" value={editingGoal.targetAmount} onChange={e => { setEditingGoal(p => ({ ...p, targetAmount: e.target.value })); setEditErrors(prev => ({ ...prev, targetAmount: '' })); }} />
+                      {editErrors.targetAmount && <span className="field-error">{editErrors.targetAmount}</span>}
+                    </div>
                     <select value={editingGoal.category} onChange={e => setEditingGoal(p => ({ ...p, category: e.target.value }))}
                       style={{ padding: '0.6rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)' }}>
                       {GOAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <input type="date" value={editingGoal.targetDate ? new Date(editingGoal.targetDate).toISOString().split('T')[0] : ''}
-                      onChange={e => setEditingGoal(p => ({ ...p, targetDate: e.target.value }))}
-                      style={{ padding: '0.6rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <input type="date" value={editingGoal.targetDate ? new Date(editingGoal.targetDate).toISOString().split('T')[0] : ''}
+                        onChange={e => { setEditingGoal(p => ({ ...p, targetDate: e.target.value })); setEditErrors(prev => ({ ...prev, targetDate: '' })); }}
+                        style={{ padding: '0.6rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)' }} />
+                      {editErrors.targetDate && <span className="field-error">{editErrors.targetDate}</span>}
+                    </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn btn-primary" style={{ flex: 1 }} onClick={saveEdit}>Save</button>
-                      <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingGoal(null)}>Cancel</button>
+                      <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => { setEditingGoal(null); setEditErrors({}); }}>Cancel</button>
                     </div>
                   </div>
                 ) : (
@@ -233,17 +309,20 @@ export default function Goals({ token, onUnauthorized }) {
 
                     {/* Add money */}
                     {addMoneyId === goal._id ? (
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <input
-                          type="number"
-                          placeholder="Amount to add"
-                          value={addMoneyAmount}
-                          onChange={e => setAddMoneyAmount(e.target.value)}
-                          style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)' }}
-                          autoFocus
-                        />
-                        <button className="btn btn-primary" style={{ fontSize: '0.82rem' }} onClick={() => addMoney(goal._id)}>Add</button>
-                        <button className="btn btn-secondary" style={{ fontSize: '0.82rem' }} onClick={() => { setAddMoneyId(null); setAddMoneyAmount(''); }}>✕</button>
+                      <div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input
+                            type="number"
+                            placeholder="Amount to add"
+                            value={addMoneyAmount}
+                            onChange={e => { setAddMoneyAmount(e.target.value); setAddMoneyError(''); }}
+                            style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)' }}
+                            autoFocus
+                          />
+                          <button className="btn btn-primary" style={{ fontSize: '0.82rem' }} onClick={() => addMoney(goal._id)}>Add</button>
+                          <button className="btn btn-secondary" style={{ fontSize: '0.82rem' }} onClick={() => { setAddMoneyId(null); setAddMoneyAmount(''); setAddMoneyError(''); }}>✕</button>
+                        </div>
+                        {addMoneyError && <span className="field-error">{addMoneyError}</span>}
                       </div>
                     ) : (
                       <button className="btn btn-primary" style={{ width: '100%', fontSize: '0.85rem' }} onClick={() => setAddMoneyId(goal._id)}>
