@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
   otpExpiry: { type: Date, default: null },
   resetPasswordToken: { type: String, default: '' },
   resetPasswordTokenExpiry: { type: Date, default: null },
+  currency: { type: String, default: '₹' },
   angelOne: {
     token: { type: String, default: '' },
     tokenExpiry: { type: Date, default: null },

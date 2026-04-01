@@ -704,6 +704,17 @@ app.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
+// Update currency preference
+app.put('/profile/currency', authMiddleware, async (req, res) => {
+  try {
+    const { currency } = req.body;
+    await User.findByIdAndUpdate(req.userId, { currency });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Reset income
 app.put('/received/reset', authMiddleware, async (req, res) => {
   try {

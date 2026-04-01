@@ -5,7 +5,7 @@ import TotalSpent from '../TotalSpent';
 import ExpenseChart from '../ExpenseChart';
 import AIInsights from './AIInsights';
 
-function Dashboard({ expenses, totalRecived, token }) {
+function Dashboard({ expenses, totalRecived, token, currency }) {
   const totalSpent = expenses.reduce((s, e) => s + e.amount, 0);
   return (
     <div className="app">
@@ -18,9 +18,9 @@ function Dashboard({ expenses, totalRecived, token }) {
       <section className="summary-section">
         <p className="section-kicker">Overview</p>
         <div className="summary-grid">
-          <TotalSpent expenses={expenses} />
-          <TotalReceivedCard totalRecived={totalRecived} />
-          <TotalBalance expenses={expenses} totalRecived={totalRecived} />
+          <TotalSpent expenses={expenses} currency={currency} />
+          <TotalReceivedCard totalRecived={totalRecived} currency={currency} />
+          <TotalBalance expenses={expenses} totalRecived={totalRecived} currency={currency} />
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 export default function TotalBalance({
   expenses,
-  totalRecived
+  totalRecived,
+  currency = '₹'
 }) {
   const totalSpent = expenses.reduce(
     (sum, exp) => sum + exp.amount,
@@ -19,7 +20,7 @@ export default function TotalBalance({
         </span>
         <span>Total Balance</span>
       </div>
-      <strong>₹{Math.round(balance)}</strong>
+      <strong>{currency}{Math.round(balance)}</strong>
     </div>
   );
 }

@@ -37,7 +37,7 @@ function smartSuggestion(goal) {
   return `Save ₹${perMonth.toLocaleString('en-IN')}/month to reach your goal`;
 }
 
-export default function Goals({ token, onUnauthorized }) {
+export default function Goals({ token, onUnauthorized, currency = '₹' }) {
   const [goals, setGoals] = useState([]);
   const [name, setName] = useState('');
   const [targetAmount, setTargetAmount] = useState('');
@@ -284,8 +284,8 @@ export default function Goals({ token, onUnauthorized }) {
                     {/* Progress */}
                     <div style={{ marginBottom: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                        <span style={{ color: 'var(--text-2)', fontSize: '0.85rem' }}>₹{goal.savedAmount.toLocaleString('en-IN')} saved</span>
-                        <span style={{ color: 'var(--text-1)', fontWeight: 700, fontSize: '0.85rem' }}>₹{goal.targetAmount.toLocaleString('en-IN')}</span>
+                        <span style={{ color: 'var(--text-2)', fontSize: '0.85rem' }}>{currency}{goal.savedAmount.toLocaleString('en-IN')} saved</span>
+                        <span style={{ color: 'var(--text-1)', fontWeight: 700, fontSize: '0.85rem' }}>{currency}{goal.targetAmount.toLocaleString('en-IN')}</span>
                       </div>
                       <ProgressBar percent={percent} />
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
@@ -347,7 +347,7 @@ export default function Goals({ token, onUnauthorized }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: '0 0 4px', color: 'var(--text-1)', fontSize: '1rem', fontWeight: 700, textDecoration: 'line-through' }}>{goal.name}</h3>
-                    <span style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: 600 }}>✅ Goal reached — ₹{goal.targetAmount.toLocaleString('en-IN')}</span>
+                    <span style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: 600 }}>✅ Goal reached — {currency}{goal.targetAmount.toLocaleString('en-IN')}</span>
                   </div>
                   <button className="btn btn-danger" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={() => deleteGoal(goal._id)}>Delete</button>
                 </div>

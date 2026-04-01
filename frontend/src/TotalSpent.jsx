@@ -1,4 +1,4 @@
-export default function TotalSpent({ expenses }) {
+export default function TotalSpent({ expenses, currency = '₹' }) {
   const total = expenses.reduce(
     (sum, exp) => sum + exp.amount,
     0
@@ -14,7 +14,7 @@ export default function TotalSpent({ expenses }) {
         </span>
         <span>Total Spent</span>
       </div>
-      <strong>₹{Math.round(total)}</strong>
+      <strong>{currency}{Math.round(total)}</strong>
     </div>
   );
 }

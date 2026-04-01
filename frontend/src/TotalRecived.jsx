@@ -28,7 +28,7 @@ function SourceBadge({ source }) {
   );
 }
 
-export default function TotalRecived({ token, onUnauthorized, setTotalRecived, incomeList, setIncomeList }) {
+export default function TotalRecived({ token, onUnauthorized, setTotalRecived, incomeList, setIncomeList, currency = '₹' }) {
   const [newTitle, setNewTitle] = useState("");
   const [newAmount, setNewAmount] = useState("");
   const [newSource, setNewSource] = useState("Salary");
@@ -316,7 +316,7 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
                     <span className="item-title">{inc.title}</span>
                     <SourceBadge source={inc.source || "Other"} />
                   </div>
-                  <span className="item-amount">₹{inc.amount}</span>
+                  <span className="item-amount">{currency}{inc.amount}</span>
                 </div>
                 <div className="item-actions">
                   <button className="btn btn-secondary" onClick={() => startEdit(inc)}>Edit</button>

@@ -54,6 +54,7 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [totalRecived, setTotalRecived] = useState(0);
   const [formErrors, setFormErrors] = useState({});
+  const [currency, setCurrency] = useState('₹');
 
   useEffect(() => { localStorage.setItem("theme", theme); }, [theme]);
 
@@ -82,6 +83,8 @@ function App() {
         setTotalRecived={setTotalRecived}
         formErrors={formErrors}
         setFormErrors={setFormErrors}
+        currency={currency}
+        setCurrency={setCurrency}
       />
     </BrowserRouter>
   );
@@ -110,6 +113,8 @@ function AppContent({
   setTotalRecived,
   formErrors,
   setFormErrors,
+  currency,
+  setCurrency,
 }) {
   const location = useLocation();
   const publicPaths = ['/verify-email', '/forgot-password', '/reset-password'];
@@ -136,6 +141,16 @@ function AppContent({
   }
 
   useEffect(() => { fetchAlerts(); }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch('http://localhost:5000/profile', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => { if (data.currency) setCurrency(data.currency); })
+      .catch(() => {});
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -309,7 +324,7 @@ function AppContent({
       {token && <TopBar token={token} alerts={urgentAlerts} theme={theme} toggleTheme={toggleTheme} />}
       <div className="main-content">
         <Routes>
-          <Route path="/" element={<Dashboard expenses={expenses} totalRecived={totalRecived} token={token} />} />
+          <Route path="/" element={<Dashboard expenses={expenses} totalRecived={totalRecived} token={token} currency={currency} />} />
           <Route path="/expenses" element={
             <ExpensePage
               token={token}
@@ -318,12 +333,13 @@ function AppContent({
               setExpenses={setExpenses}
               setIncomeList={setIncomeList}
               setTotalRecived={setTotalRecived}
+              currency={currency}
             />
           } />
-          <Route path="/income" element={<IncomePage token={token} onUnauthorized={logout} setTotalRecived={setTotalRecived} incomeList={incomeList} setIncomeList={setIncomeList} />} />
-          <Route path="/upcoming" element={<UpcomingPayments token={token} onUnauthorized={logout} onPaymentChange={fetchAlerts} />} />
-          <Route path="/calendar" element={<CalendarPage token={token} onUnauthorized={logout} expenses={expenses} />} />
-          <Route path="/goals" element={<Goals token={token} onUnauthorized={logout} />} />
+          <Route path="/income" element={<IncomePage token={token} onUnauthorized={logout} setTotalRecived={setTotalRecived} incomeList={incomeList} setIncomeList={setIncomeList} currency={currency} />} />
+          <Route path="/upcoming" element={<UpcomingPayments token={token} onUnauthorized={logout} onPaymentChange={fetchAlerts} currency={currency} />} />
+          <Route path="/calendar" element={<CalendarPage token={token} onUnauthorized={logout} expenses={expenses} currency={currency} />} />
+          <Route path="/goals" element={<Goals token={token} onUnauthorized={logout} currency={currency} />} />
           <Route path="/investments" element={<Investments />} />
           <Route path="/profile" element={
             <Profile
@@ -333,6 +349,8 @@ function AppContent({
               setExpenses={setExpenses}
               setTotalRecived={setTotalRecived}
               setIncomeList={setIncomeList}
+              currency={currency}
+              setCurrency={setCurrency}
             />
           } />
           <Route path="*" element={<Navigate to="/" />} />

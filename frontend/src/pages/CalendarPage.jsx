@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
-export default function CalendarPage({ token, onUnauthorized, expenses = [] }) {
+export default function CalendarPage({ token, onUnauthorized, expenses = [], currency = '₹' }) {
   const [payments, setPayments] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedPayments, setSelectedPayments] = useState([]);
@@ -289,7 +289,7 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [] }) {
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontWeight: 600, color: 'var(--text-1)' }}>{p.name}</span>
-                        <span style={{ fontWeight: 700, color: 'var(--text-1)' }}>₹{p.amount}</span>
+                        <span style={{ fontWeight: 700, color: 'var(--text-1)' }}>{currency}{p.amount}</span>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                         <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '999px', background: typeColor[p.type] + '22', color: typeColor[p.type], border: `1px solid ${typeColor[p.type]}55` }}>{p.type}</span>
@@ -324,7 +324,7 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [] }) {
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ fontWeight: 600, color: 'var(--text-1)' }}>{e.title}</span>
-                          <span style={{ fontWeight: 700, color: 'var(--text-1)' }}>₹{e.amount}</span>
+                          <span style={{ fontWeight: 700, color: 'var(--text-1)' }}>{currency}{e.amount}</span>
                         </div>
                         <div style={{ marginTop: '6px' }}>
                           <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '999px', background: color + '22', color, border: `1px solid ${color}55` }}>{e.category || 'Other'}</span>
@@ -335,7 +335,7 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [] }) {
                 </div>
                 <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: 'var(--text-2)', fontSize: '0.85rem' }}>Total spent</span>
-                  <span style={{ fontWeight: 700, color: 'var(--text-1)' }}>₹{selectedExpenses.reduce((s, e) => s + e.amount, 0)}</span>
+                  <span style={{ fontWeight: 700, color: 'var(--text-1)' }}>{currency}{selectedExpenses.reduce((s, e) => s + e.amount, 0)}</span>
                 </div>
               </>
             )

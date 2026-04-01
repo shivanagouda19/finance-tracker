@@ -31,7 +31,7 @@ function CategoryBadge({ category }) {
   );
 }
 
-export default function Expense({ token, onUnauthorized, expenses, setExpenses, setIncomeList, setTotalRecived }) {
+export default function Expense({ token, onUnauthorized, expenses, setExpenses, setIncomeList, setTotalRecived, currency = '₹' }) {
 
   const [newTitle, setNewTitle] = useState("");
   const [newAmount, setNewAmount] = useState("");
@@ -462,7 +462,7 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
                     <span className="item-title">{exp.title}</span>
                     <CategoryBadge category={exp.category || "Other"} />
                   </div>
-                  <span className="item-amount">₹{exp.amount}</span>
+                  <span className="item-amount">{currency}{exp.amount}</span>
                 </div>
                 <div className="item-actions">
                   <button className="btn btn-secondary" onClick={() => startEdit(exp)}>Edit</button>

@@ -10,7 +10,7 @@ const typeColor = {
   Debt: '#a855f7'
 };
 
-export default function UpcomingPayments({ token, onUnauthorized, onPaymentChange }) {
+export default function UpcomingPayments({ token, onUnauthorized, onPaymentChange, currency = '₹' }) {
   const [payments, setPayments] = useState([]);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
@@ -198,7 +198,7 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
           marginBottom: '24px', display: 'flex', justifyContent: 'space-between'
         }}>
           <span style={{ color: 'var(--text-1)' }}>Total Pending</span>
-          <span style={{ color: '#ef4444', fontWeight: 700, fontSize: '1.1rem' }}>₹{totalPending}</span>
+          <span style={{ color: '#ef4444', fontWeight: 700, fontSize: '1.1rem' }}>{currency}{totalPending}</span>
         </div>
       )}
 
@@ -257,7 +257,7 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>Due: {new Date(p.dueDate).toLocaleDateString('en-IN')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-1)' }}>₹{p.amount}</span>
+                  <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-1)' }}>{currency}{p.amount}</span>
                   <button className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => startEdit(p)}>Edit</button>
                   <button className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => markPaid(p._id)}>Mark Paid</button>
                   <button className="btn btn-danger" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => deletePayment(p._id)}>Delete</button>
@@ -282,7 +282,7 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-2)', marginTop: '4px' }}>Paid ✓</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontWeight: 700, color: '#22c55e' }}>₹{p.amount}</span>
+                  <span style={{ fontWeight: 700, color: '#22c55e' }}>{currency}{p.amount}</span>
                   <button className="btn btn-danger" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => deletePayment(p._id)}>Delete</button>
                 </div>
               </div>

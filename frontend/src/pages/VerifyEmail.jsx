@@ -49,47 +49,84 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      height: '100%',
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      background: 'var(--bg)',
-      overflow: 'hidden',
+    <div style={{
       position: 'fixed',
-      width: '100%',
-      top: 0,
-      left: 0
+      inset: 0,
+      background: 'var(--bg, #0f172a)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem',
     }}>
-      <div className="card" style={{ maxWidth: '500px', width: '100%', padding: '40px' }}>
+      <div style={{
+        background: 'var(--surface-1, #1e293b)',
+        border: '1px solid var(--border, #334155)',
+        borderRadius: '20px',
+        padding: '2.5rem 2rem',
+        width: '100%',
+        maxWidth: '420px',
+        textAlign: 'center',
+        boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
+      }}>
         {verified ? (
           <>
-            <div className="auth-icon">✅</div>
-            <h2 style={{ textAlign: 'center', marginBottom: '12px' }}>Email Verified!</h2>
-            <p className="auth-success">{message}</p>
+            <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>✅</div>
+            <h2 style={{ color: 'var(--text-1)', marginBottom: '0.5rem' }}>Email Verified!</h2>
+            <p style={{ color: 'var(--text-2)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{message}</p>
             <button className="btn" onClick={() => navigate('/')} style={{ width: '100%' }}>Go to Login</button>
           </>
         ) : (
           <>
-            <div className="auth-icon">📧</div>
-            <h2 style={{ textAlign: 'center', marginBottom: '8px' }}>Verify Your Email</h2>
-            <p className="auth-subtitle" style={{ textAlign: 'center' }}>We sent a 6-digit OTP to <strong>{email}</strong>. Enter it below.</p>
-            {error && <div style={{ padding: '12px', borderRadius: '8px', background: '#fee2e2', color: '#dc2626', marginBottom: '16px', fontSize: '0.9rem' }}>{error}</div>}
-            {message && <div className="auth-success">{message}</div>}
+            <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>📧</div>
+            <h2 style={{ color: 'var(--text-1)', marginBottom: '0.5rem' }}>Verify Your Email</h2>
+            <p style={{ color: 'var(--text-2)', fontSize: '0.88rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+              We sent a 6-digit OTP to <strong style={{ color: 'var(--text-1)' }}>{email}</strong>.<br />Enter it below to activate your account.
+            </p>
+            {error && (
+              <div style={{ background: '#fee2e2', color: '#dc2626', padding: '0.75rem', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.88rem' }}>
+                {error}
+              </div>
+            )}
+            {message && (
+              <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.75rem', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.88rem' }}>
+                {message}
+              </div>
+            )}
             <input
-              className="otp-input"
               type="text"
               maxLength={6}
-              placeholder="Enter 6-digit OTP"
+              placeholder="• • • • • •"
               value={otp}
               onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
-              style={{ marginBottom: '16px' }}
+              style={{
+                width: '100%',
+                textAlign: 'center',
+                fontSize: '2.2rem',
+                letterSpacing: '16px',
+                fontWeight: '700',
+                padding: '1rem',
+                borderRadius: '12px',
+                border: '2px solid var(--border, #334155)',
+                background: 'var(--surface-2, #0f172a)',
+                color: 'var(--text-1, #f1f5f9)',
+                marginBottom: '1rem',
+                boxSizing: 'border-box',
+                outline: 'none',
+              }}
             />
-            <button className="btn" onClick={handleVerify} disabled={loading} style={{ width: '100%', marginBottom: '12px' }}>
+            <button
+              className="btn"
+              onClick={handleVerify}
+              disabled={loading}
+              style={{ width: '100%', marginBottom: '0.75rem' }}
+            >
               {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
-            <button className="auth-link-btn" onClick={handleResend} disabled={resending} style={{ width: '100%' }}>
+            <button
+              onClick={handleResend}
+              disabled={resending}
+              style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.88rem', textDecoration: 'underline' }}
+            >
               {resending ? 'Sending...' : "Didn't receive OTP? Resend"}
             </button>
           </>

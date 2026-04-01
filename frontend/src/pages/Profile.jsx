@@ -40,12 +40,11 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
   );
 }
 
-export default function Profile({ token, onUnauthorized, onLogout, setExpenses, setTotalRecived, setIncomeList }) {
+export default function Profile({ token, onUnauthorized, onLogout, setExpenses, setTotalRecived, setIncomeList, currency, setCurrency }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [confirm, setConfirm] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
-  const [currency, setCurrency] = useState(localStorage.getItem('currency') || '₹');
 
   useEffect(() => {
     fetch('http://localhost:5000/profile', {
@@ -60,6 +59,20 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
         setEmail(data.email);
       });
   }, [token, onUnauthorized]);
+
+  const handleCurrencyChange = async (newCurrency) => {
+    try {
+      await fetch('http://localhost:5000/profile/currency', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ currency: newCurrency })
+      });
+      setCurrency(newCurrency);
+    } catch (err) {}
+  };
 
 
 
@@ -146,10 +159,7 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
           </div>
           <select
             value={currency}
-            onChange={e => {
-              setCurrency(e.target.value);
-              localStorage.setItem('currency', e.target.value);
-            }}
+            onChange={e => handleCurrencyChange(e.target.value)}
             style={{
               padding: '8px 12px',
               borderRadius: 'var(--radius-md)',

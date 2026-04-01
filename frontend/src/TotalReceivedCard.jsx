@@ -1,4 +1,4 @@
-export default function TotalReceivedCard({ totalRecived }) {
+export default function TotalReceivedCard({ totalRecived, currency = '₹' }) {
   return (
     <div className="summary-card received">
       <div className="summary-top">
@@ -9,7 +9,7 @@ export default function TotalReceivedCard({ totalRecived }) {
         </span>
         <span>Total Received</span>
       </div>
-      <strong>₹{totalRecived}</strong>
+      <strong>{currency}{totalRecived}</strong>
     </div>
   );
 }
