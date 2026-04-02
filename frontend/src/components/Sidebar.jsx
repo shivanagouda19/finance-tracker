@@ -44,6 +44,10 @@ function Sidebar() {
 
       {/* Profile at bottom */}
       <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px', marginTop: '12px' }}>
+        <NavLink to="/about" className="nav-link">
+          <span>ℹ️</span>
+          <span>About</span>
+        </NavLink>
         <NavLink to="/profile" className="nav-link">
           <span>👤</span>
           <span>Profile</span>

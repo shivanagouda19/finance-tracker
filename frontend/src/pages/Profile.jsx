@@ -45,6 +45,9 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
   const [email, setEmail] = useState('');
   const [confirm, setConfirm] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
+  const [passwordResetLoading, setPasswordResetLoading] = useState(false);
+  const [passwordResetError, setPasswordResetError] = useState('');
 
   useEffect(() => {
     fetch('http://localhost:5000/profile', {
@@ -72,6 +75,24 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
       });
       setCurrency(newCurrency);
     } catch (err) {}
+  };
+
+  const handleSendPasswordReset = async () => {
+    setPasswordResetLoading(true);
+    setPasswordResetError('');
+    try {
+      const res = await fetch('http://localhost:5000/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setPasswordResetSent(true);
+    } catch (e) {
+      setPasswordResetError(e.message);
+    }
+    setPasswordResetLoading(false);
   };
 
 
@@ -178,6 +199,34 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
             <option value="¥">¥ Japanese Yen</option>
           </select>
         </div>
+      </Section>
+
+      {/* Change Password */}
+      <Section title="Change Password">
+        {passwordResetSent ? (
+          <div className="password-reset-success">
+            <span>📧</span>
+            <div>
+              <strong>Reset email sent!</strong>
+              <p>Check your inbox for a password reset link. The link expires in 1 hour.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="password-reset-row">
+            <div>
+              <strong>Reset via Email</strong>
+              <p>We'll send a password reset link to <strong>{email}</strong></p>
+            </div>
+            <button
+              className="send-reset-btn"
+              onClick={handleSendPasswordReset}
+              disabled={passwordResetLoading}
+            >
+              {passwordResetLoading ? 'Sending...' : 'Change Password'}
+            </button>
+          </div>
+        )}
+        {passwordResetError && <div className="inv-error" style={{marginTop:'0.75rem'}}>⚠️ {passwordResetError}</div>}
       </Section>
 
       {/* Session */}

@@ -174,14 +174,53 @@ app.post("/signup", async (req, res) => {
       otpExpiry,
     });
 
-    await sendEmail(email, 'Verify Your Email — Expense Tracker', `
-      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
-        <h2 style="color: #00c9b1;">Verify Your Email</h2>
-        <p>Use the OTP below to verify your account:</p>
-        <div style="font-size: 2rem; font-weight: bold; letter-spacing: 8px; color: #00c9b1; text-align: center; padding: 20px; background: #f3f4f6; border-radius: 8px; margin: 16px 0;">${otp}</div>
-        <p style="color: #888; font-size: 13px;">This OTP expires in 10 minutes. If you didn't sign up, ignore this email.</p>
-      </div>
-    `);
+    const otpEmailHtml = `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#0f172a;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#1e293b;border-radius:20px;overflow:hidden;border:1px solid #334155;">
+        
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:32px;text-align:center;">
+          <div style="font-size:40px;margin-bottom:8px;">📧</div>
+          <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Verify Your Email</h1>
+          <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;font-size:14px;">Expense Tracker</p>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px;">
+          <p style="color:#94a3b8;font-size:15px;margin:0 0 8px;">Hi there,</p>
+          <p style="color:#cbd5e1;font-size:15px;margin:0 0 24px;line-height:1.6;">Welcome! Use the OTP below to verify your email and activate your account.</p>
+          
+          <!-- OTP Box -->
+          <div style="background:#0f172a;border:2px solid #6366f1;border-radius:16px;padding:24px;text-align:center;margin:0 0 24px;">
+            <p style="color:#94a3b8;font-size:12px;margin:0 0 8px;text-transform:uppercase;letter-spacing:2px;">Your OTP</p>
+            <div style="font-size:42px;font-weight:800;letter-spacing:16px;color:#6366f1;font-family:monospace;">${otp}</div>
+          </div>
+
+          <!-- Expiry warning -->
+          <div style="background:#292524;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin:0 0 24px;">
+            <p style="color:#fcd34d;margin:0;font-size:13px;">⏰ This OTP expires in <strong>10 minutes</strong></p>
+          </div>
+
+          <p style="color:#64748b;font-size:13px;margin:0;">If you didn't create an account, you can safely ignore this email.</p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#0f172a;padding:20px;text-align:center;border-top:1px solid #334155;">
+          <p style="color:#475569;font-size:12px;margin:0;">© 2025 Expense Tracker. All rights reserved.</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
+`;
+
+    await sendEmail(email, 'Verify Your Email — Expense Tracker', otpEmailHtml);
 
     res.json({ message: 'OTP sent to your email. Please verify to continue.', email });
   } catch (err) {
@@ -255,13 +294,53 @@ app.post('/resend-otp', async (req, res) => {
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
     await User.findByIdAndUpdate(user._id, { otp, otpExpiry });
 
-    await sendEmail(email, 'New OTP — Expense Tracker', `
-      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
-        <h2 style="color: #00c9b1;">Your New OTP</h2>
-        <div style="font-size: 2rem; font-weight: bold; letter-spacing: 8px; color: #00c9b1; text-align: center; padding: 20px; background: #f3f4f6; border-radius: 8px; margin: 16px 0;">${otp}</div>
-        <p style="color: #888; font-size: 13px;">This OTP expires in 10 minutes.</p>
-      </div>
-    `);
+    const otpEmailHtml = `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#0f172a;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#1e293b;border-radius:20px;overflow:hidden;border:1px solid #334155;">
+        
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:32px;text-align:center;">
+          <div style="font-size:40px;margin-bottom:8px;">📧</div>
+          <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Verify Your Email</h1>
+          <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;font-size:14px;">Expense Tracker</p>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px;">
+          <p style="color:#94a3b8;font-size:15px;margin:0 0 8px;">Hi there,</p>
+          <p style="color:#cbd5e1;font-size:15px;margin:0 0 24px;line-height:1.6;">Welcome! Use the OTP below to verify your email and activate your account.</p>
+          
+          <!-- OTP Box -->
+          <div style="background:#0f172a;border:2px solid #6366f1;border-radius:16px;padding:24px;text-align:center;margin:0 0 24px;">
+            <p style="color:#94a3b8;font-size:12px;margin:0 0 8px;text-transform:uppercase;letter-spacing:2px;">Your OTP</p>
+            <div style="font-size:42px;font-weight:800;letter-spacing:16px;color:#6366f1;font-family:monospace;">${otp}</div>
+          </div>
+
+          <!-- Expiry warning -->
+          <div style="background:#292524;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin:0 0 24px;">
+            <p style="color:#fcd34d;margin:0;font-size:13px;">⏰ This OTP expires in <strong>10 minutes</strong></p>
+          </div>
+
+          <p style="color:#64748b;font-size:13px;margin:0;">If you didn't create an account, you can safely ignore this email.</p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#0f172a;padding:20px;text-align:center;border-top:1px solid #334155;">
+          <p style="color:#475569;font-size:12px;margin:0;">© 2025 Expense Tracker. All rights reserved.</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
+`;
+
+    await sendEmail(email, 'New OTP — Expense Tracker', otpEmailHtml);
 
     res.json({ message: 'New OTP sent to your email.' });
   } catch (err) {
@@ -290,14 +369,54 @@ app.post('/forgot-password', async (req, res) => {
     });
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-    await sendEmail(email, 'Reset Your Password — Expense Tracker', `
-      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
-        <h2 style="color: #00c9b1;">Reset Your Password</h2>
-        <p>We received a request to reset your password.</p>
-        <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background: #00c9b1; color: white; border-radius: 8px; text-decoration: none; margin: 16px 0;">Reset Password</a>
-        <p style="color: #888; font-size: 13px;">This link expires in 1 hour. If you didn't request this, ignore this email.</p>
-      </div>
-    `);
+    const resetEmailHtml = `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#0f172a;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#1e293b;border-radius:20px;overflow:hidden;border:1px solid #334155;">
+        
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:32px;text-align:center;">
+          <div style="font-size:40px;margin-bottom:8px;">🔐</div>
+          <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Reset Your Password</h1>
+          <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;font-size:14px;">Expense Tracker</p>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px;">
+          <p style="color:#cbd5e1;font-size:15px;margin:0 0 16px;line-height:1.6;">We received a request to reset your password. Click the button below to create a new one.</p>
+
+          <!-- Reset Button -->
+          <div style="text-align:center;margin:24px 0;">
+            <a href="${resetUrl}" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:16px;font-weight:700;">Reset Password</a>
+          </div>
+
+          <!-- Expiry warning -->
+          <div style="background:#292524;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin:0 0 24px;">
+            <p style="color:#fcd34d;margin:0;font-size:13px;">⏰ This link expires in <strong>1 hour</strong></p>
+          </div>
+
+          <!-- Fallback URL -->
+          <p style="color:#64748b;font-size:12px;margin:0 0 8px;">If the button doesn't work, copy and paste this link:</p>
+          <p style="color:#6366f1;font-size:12px;word-break:break-all;margin:0 0 24px;">${resetUrl}</p>
+
+          <p style="color:#64748b;font-size:13px;margin:0;">If you didn't request a password reset, you can safely ignore this email.</p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#0f172a;padding:20px;text-align:center;border-top:1px solid #334155;">
+          <p style="color:#475569;font-size:12px;margin:0;">© 2025 Expense Tracker. All rights reserved.</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
+`;
+    await sendEmail(email, 'Reset Your Password — Expense Tracker', resetEmailHtml);
 
     res.json({ message: 'If this email exists, a reset link has been sent.' });
   } catch (err) {

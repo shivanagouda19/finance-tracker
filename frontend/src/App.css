@@ -766,4 +766,150 @@ button { font-family: var(--font-body); }
   outline: none;
   border-color: var(--accent);
 }
-@media (max-width: 600px) { .investments-page { padding: 1rem; } .inv-summary { flex-direction: column; } .angel-form-grid { grid-template-columns: 1fr; } }
+.password-reset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.password-reset-row strong {
+  color: var(--text-1);
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.password-reset-row p {
+  color: var(--text-2);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.send-reset-btn {
+  padding: 0.5rem 1.25rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.send-reset-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 201, 177, 0.3);
+}
+.send-reset-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.password-reset-success {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-1);
+}
+.password-reset-success span {
+  font-size: 2rem;
+}
+.password-reset-success strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #22c55e;
+}
+.password-reset-success p {
+  color: var(--text-2);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.about-page {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.about-hero {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+.about-hero h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-1);
+  margin-bottom: 0.75rem;
+}
+.about-hero p {
+  color: var(--text-2);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 600px;
+}
+.about-section {
+  margin-bottom: 2.5rem;
+}
+.about-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 1rem;
+}
+.about-features-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.about-feature-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.about-feature-icon {
+  font-size: 1.4rem;
+  margin-top: 2px;
+}
+.about-feature-card strong {
+  color: var(--text-1);
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.about-feature-card p {
+  color: var(--text-2);
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.5;
+}
+.about-stack {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.about-stack-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.about-stack-row:last-child {
+  border-bottom: none;
+}
+.about-stack-label {
+  color: var(--text-2);
+  font-size: 0.88rem;
+}
+.about-stack-value {
+  color: var(--text-1);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+@media (max-width: 600px) { .investments-page { padding: 1rem; } .inv-summary { flex-direction: column; } .angel-form-grid { grid-template-columns: 1fr; } .about-page { padding: 1rem; } }

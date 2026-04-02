@@ -10,6 +10,7 @@ import CalendarPage from './pages/CalendarPage';
 import Profile from './pages/Profile';
 import Goals from './pages/Goals';
 import Investments from './pages/Investments';
+import About from './pages/About';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -341,6 +342,7 @@ function AppContent({
           <Route path="/calendar" element={<CalendarPage token={token} onUnauthorized={logout} expenses={expenses} currency={currency} />} />
           <Route path="/goals" element={<Goals token={token} onUnauthorized={logout} currency={currency} />} />
           <Route path="/investments" element={<Investments />} />
+          <Route path="/about" element={<About />} />
           <Route path="/profile" element={
             <Profile
               token={token}
