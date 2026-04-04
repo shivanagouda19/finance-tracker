@@ -78,7 +78,7 @@ export default function Profile({ token, onUnauthorized, onLogout, setExpenses, 
   };
 const handleLogout = () => {
     onLogout();
-    navigate("/About");
+    navigate("/about");
   };
 
   const handleSendPasswordReset = async () => {

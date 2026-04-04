@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import { Bell, CheckCircle } from 'lucide-react';
+
 const statusColor = {
   Pending: '#f97316',
   Paid: '#22c55e'
@@ -209,7 +211,9 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
 
       {pending.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-2)' }}>
-          <div style={{ fontSize: '2.5rem' }}>🎉</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+            <CheckCircle size={48} strokeWidth={1.5} style={{ color: '#22c55e' }} />
+          </div>
           <p>No pending payments!</p>
         </div>
       ) : (
@@ -279,7 +283,7 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
               <div key={p._id} className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <span style={{ fontWeight: 600, color: 'var(--text-1)', textDecoration: 'line-through' }}>{p.name}</span>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-2)', marginTop: '4px' }}>Paid ✓</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-2)', marginTop: '4px' }}>Paid <CheckCircle size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span style={{ fontWeight: 700, color: '#22c55e' }}>{currency}{p.amount}</span>

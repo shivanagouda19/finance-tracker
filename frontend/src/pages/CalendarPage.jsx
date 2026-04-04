@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import { Bell, Receipt, Inbox } from 'lucide-react';
 
 export default function CalendarPage({ token, onUnauthorized, expenses = [], currency = '₹' }) {
   const [payments, setPayments] = useState([]);
@@ -245,9 +246,12 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [], cur
                 fontSize: '0.85rem',
                 background: activeTab === 'payments' ? 'var(--accent)' : 'var(--surface-2)',
                 color: activeTab === 'payments' ? 'white' : 'var(--text-2)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              🔔 Payments ({selectedPayments.length})
+              <Bell size={14} /> Payments ({selectedPayments.length})
             </button>
             <button
               onClick={() => setActiveTab('expenses')}
@@ -260,9 +264,12 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [], cur
                 fontSize: '0.85rem',
                 background: activeTab === 'expenses' ? 'var(--accent)' : 'var(--surface-2)',
                 color: activeTab === 'expenses' ? 'white' : 'var(--text-2)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              💸 Expenses ({selectedExpenses.length})
+              <Receipt size={14} /> Expenses ({selectedExpenses.length})
             </button>
           </div>
 
@@ -270,7 +277,9 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [], cur
           {activeTab === 'payments' && (
             selectedPayments.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-2)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📭</div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+                  <Inbox size={48} strokeWidth={1.5} style={{ color: 'var(--text-2)' }} />
+                </div>
                 <p style={{ fontSize: '0.9rem' }}>No payments on this day</p>
               </div>
             ) : (
@@ -306,7 +315,9 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [], cur
           {activeTab === 'expenses' && (
             selectedExpenses.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-2)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📭</div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+                  <Inbox size={48} strokeWidth={1.5} style={{ color: 'var(--text-2)' }} />
+                </div>
                 <p style={{ fontSize: '0.9rem' }}>No expenses on this day</p>
               </div>
             ) : (

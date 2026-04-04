@@ -4,11 +4,9 @@ import { LayoutDashboard, Receipt, Wallet, Bell, Calendar, Target, TrendingUp, U
 function Sidebar() {
   return (
     <div className="sidebar">
-      {/* App title */}
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)', margin: 0 }}>
-          FinTrack
-        </h2>
+      {/* App logo */}
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
+        <img src="/src/images/logo.png" alt="FinTrack" style={{ width: '130px', objectFit: 'contain' }} />
       </div>
 
       {/* Top nav links — takes all available space */}

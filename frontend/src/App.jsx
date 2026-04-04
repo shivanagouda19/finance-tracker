@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './components/Dashboard';
@@ -111,7 +111,17 @@ function AppContent({
   setAuthLoading,
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const publicPaths = ['/verify-email', '/forgot-password', '/reset-password'];
+
+  useEffect(() => {
+    if (location.pathname === '/auth') {
+      const mode = searchParams.get('mode');
+      if (mode === 'signup') setIsLoginMode(false);
+      else setIsLoginMode(true);
+    }
+  }, [location.pathname, searchParams]);
 
   function fetchAlerts() {
     if (!token) return;
@@ -240,8 +250,6 @@ function AppContent({
     if (e.key === "Enter") handleAuthSubmit();
   }
 
-  const navigate = useNavigate();
-
   function logout() {
     localStorage.removeItem("token");
     setToken("");
@@ -252,23 +260,23 @@ function AppContent({
   }
 
   if (!token) {
-    // Show public pages for these paths
-    if (location.pathname === '/about' || location.pathname === '/') {
-      return (
-        <div className="app-shell" data-theme={theme}>
-          <About 
-            theme={theme} 
-            toggleTheme={toggleTheme} 
-            onNavigateToAuth={(mode) => {
-              setIsLoginMode(mode === 'login');
-              setShowAuthForm(true);
-              window.history.pushState({}, '', '/auth');
-            }}
-          />
-        </div>
-      );
-    }
-
+    // Show about page for home and about paths
+    if (location.pathname === '/' || location.pathname === '/about') {
+  return (
+    <div className="app-shell" data-theme={theme}>
+      <About 
+        theme={theme} 
+        toggleTheme={toggleTheme}
+        navigate={navigate}
+        onNavigateToAuth={(mode) => {
+          setIsLoginMode(mode === 'login');
+          navigate('/auth');
+        }}
+      />
+    </div>
+  );
+}
+    // Show public auth pages
     if (publicPaths.some(path => location.pathname.startsWith(path))) {
       return (
         <div className="app-shell" data-theme={theme}>
@@ -281,83 +289,67 @@ function AppContent({
       );
     }
 
-    // Show login/signup form for all other paths
-    if (location.pathname === '/auth' || showAuthForm) {
-      return (
-        <div className="app-shell" data-theme={theme}>
-          <div className="app auth-app" style={{ maxWidth: '460px', margin: '0 auto', padding: '40px 20px' }}>
-            {/* <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <button className="btn btn-secondary" onClick={() => { setShowAuthForm(false); window.history.pushState({}, '', '/'); }}>
-                ← Back
-              </button>
-            </div> */}
-
-            <header className="app-header auth-header">
-              <h1>FinTrack</h1>
-              <p>{isLoginMode ? "Welcome back — log in to continue" : "Create your account to get started"}</p>
-            </header>
-
-            <section className="card auth-card">
-              <div className="auth-form">
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={e => { setEmail(e.target.value); setFormErrors(prev => ({ ...prev, email: "" })); }}
-                  onKeyDown={handleAuthKeyDown}
-                  autoComplete="email"
-                />
-                {formErrors.email && <span className="field-error">{formErrors.email}</span>}
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={e => { setPassword(e.target.value); setFormErrors(prev => ({ ...prev, password: "" })); }}
-                  onKeyDown={handleAuthKeyDown}
-                  autoComplete={isLoginMode ? "current-password" : "new-password"}
-                />
-                {formErrors.password && <span className="field-error">{formErrors.password}</span>}
-                <button className="btn" onClick={handleAuthSubmit} disabled={authLoading}>
-                  {isLoginMode 
-                    ? (authLoading ? 'Logging in...' : 'Log in')
-                    : (authLoading ? 'Creating account...' : 'Create account')
-                  }
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => { setIsLoginMode(p => !p); setAuthMessage(""); setFormErrors({}); }}
-                >
-                  {isLoginMode ? "Need an account? Sign up" : "Already have an account? Log in"}
-                </button>
-                {isLoginMode && (
-                  <button
-                    className="auth-link-btn"
-                    onClick={() => window.location.href = '/forgot-password'}
-                  >
-                    Forgot Password?
-                  </button>
-                )}
-                {authMessage && <p className="auth-message">{authMessage}</p>}
-              </div>
-            </section>
-          </div>
-        </div>
-      );
-    }
-
-    // Default: redirect to about page
-    window.history.pushState({}, '', '/about');
+    // Show login/signup form for /auth and all other paths
     return (
       <div className="app-shell" data-theme={theme}>
-        <About 
-          theme={theme} 
-          toggleTheme={toggleTheme} 
-          onNavigateToAuth={(mode) => {
-            setIsLoginMode(mode === 'login');
-            setShowAuthForm(true);
-            window.history.pushState({}, '', '/auth');
-          }}
-        />
+        <div className="app auth-app" style={{ maxWidth: '460px', margin: '0 auto', padding: '40px 20px' }}>
+          {/* <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button className="btn btn-secondary" onClick={() => { setShowAuthForm(false); window.history.pushState({}, '', '/'); }}>
+              ← Back
+            </button>
+          </div> */}
+
+          <header className="app-header auth-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <img src="/src/images/logo.png" alt="FinTrack" style={{ width: '220px', objectFit: 'contain' }} />
+            <p style={{ color: 'var(--text-2)', margin: 0 }}>
+              {isLoginMode ? "Welcome back — log in to continue" : "Create your account to get started"}
+            </p>
+          </header>
+
+          <section className="card auth-card">
+            <div className="auth-form">
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setFormErrors(prev => ({ ...prev, email: "" })); }}
+                onKeyDown={handleAuthKeyDown}
+                autoComplete="email"
+              />
+              {formErrors.email && <span className="field-error">{formErrors.email}</span>}
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={e => { setPassword(e.target.value); setFormErrors(prev => ({ ...prev, password: "" })); }}
+                onKeyDown={handleAuthKeyDown}
+                autoComplete={isLoginMode ? "current-password" : "new-password"}
+              />
+              {formErrors.password && <span className="field-error">{formErrors.password}</span>}
+              <button className="btn" onClick={handleAuthSubmit} disabled={authLoading}>
+                {isLoginMode 
+                  ? (authLoading ? 'Logging in...' : 'Log in')
+                  : (authLoading ? 'Creating account...' : 'Create account')
+                }
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => { setIsLoginMode(p => !p); setAuthMessage(""); setFormErrors({}); }}
+              >
+                {isLoginMode ? "Need an account? Sign up" : "Already have an account? Log in"}
+              </button>
+              {isLoginMode && (
+                <button
+                  className="auth-link-btn"
+                  onClick={() => window.location.href = '/forgot-password'}
+                >
+                  Forgot Password?
+                </button>
+              )}
+              {authMessage && <p className="auth-message">{authMessage}</p>}
+            </div>
+          </section>
+        </div>
       </div>
     );
   }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import BankImporter from './components/BankImporter';
+import { FileText, Download, Inbox } from 'lucide-react';
 
 const CATEGORIES = [
   { label: "Food", color: "#f97316" },
@@ -272,8 +273,8 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
     <div className="expense-section">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h3 className="section-title" style={{ margin: 0 }}>Add New Expense</h3>
-        <button className="btn btn-secondary" onClick={() => setShowImporter(true)} style={{ fontSize: '0.85rem' }}>
-          📄 Import Statement
+        <button className="btn btn-secondary" onClick={() => setShowImporter(true)} style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <FileText size={16} /> Import Statement
         </button>
       </div>
 
@@ -385,8 +386,8 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
             </>
           )}
         </div>
-        <button className="btn btn-secondary" onClick={downloadPDF}>
-          ⬇ Download PDF
+        <button className="btn btn-secondary" onClick={downloadPDF} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Download size={16} /> Download PDF
         </button>
       </div>
 
@@ -402,7 +403,7 @@ export default function Expense({ token, onUnauthorized, expenses, setExpenses, 
             alignItems: 'center',
             gap: '10px'
           }}>
-            <span style={{ fontSize: '2.5rem' }}>📭</span>
+            <Inbox size={48} strokeWidth={1.5} style={{ color: 'var(--text-2)' }} />
             <span style={{ fontWeight: 600, color: 'var(--text-1)' }}>No expenses found</span>
             <span style={{ fontSize: '0.85rem' }}>
               {showAll ? 'Add your first expense above' : 'No expenses for this period — try Show All or add a new one'}

@@ -1,4 +1,4 @@
-import { Sun, Moon, BarChart2, Receipt, Wallet, Bell, Target, Bot, Upload, TrendingUp, Calendar as CalendarIcon, Moon as MoonIcon } from 'lucide-react';
+import { Shield, Sun, Moon, BarChart2, Receipt, Wallet, Bell, Target, Bot, Upload, TrendingUp, Calendar as CalendarIcon, Moon as MoonIcon } from 'lucide-react';
 
 const MoonIconComponent = () => <Moon size={15} />;
 const SunIconComponent = () => <Sun size={15} />;
@@ -13,7 +13,7 @@ export default function About({ theme, toggleTheme, onNavigateToAuth }) {
     { icon: <Bot size={40} />, title: 'AI Budget Advisor', desc: 'Gemini-powered insights that analyze your spending and suggest improvements.' },
     { icon: <Upload size={40} />, title: 'Bank Statement Import', desc: 'Upload your bank statement and auto-import transactions using AI.' },
     { icon: <TrendingUp size={40} />, title: 'Angel One Investment Tracking', desc: 'Connect your Angel One account and monitor your stock portfolio in real time.' },
-    { icon: <CalendarIcon size={40} />, title: 'Calendar View', desc: 'See your expenses and payments on an interactive calendar.' },
+    { icon: <Shield size={40} />, title: 'JWT Authentication', desc: 'All sessions are secured with JSON Web Tokens. Your credentials are never stored in plain text.' }
   ];
 
   const stack = [

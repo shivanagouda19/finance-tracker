@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Target, Plus, X, Lightbulb, CheckCircle } from 'lucide-react';
 
 const GOAL_CATEGORIES = ['Travel', 'Electronics', 'Emergency', 'Education', 'Health', 'Other'];
 
@@ -184,7 +185,7 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
           <p style={{ color: 'var(--text-2)', margin: 0 }}>Track your savings for specific targets</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowForm(p => !p)}>
-          {showForm ? '✕ Cancel' : '+ New Goal'}
+          {showForm ? <><X size={16} /> Cancel</> : <><Plus size={16} /> New Goal</>}
         </button>
       </div>
 
@@ -226,7 +227,9 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
 
       {active.length === 0 ? (
         <div className="card" style={{ padding: '48px', textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🎯</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+            <Target size={64} strokeWidth={1.5} style={{ color: 'var(--text-2)' }} />
+          </div>
           <p style={{ color: 'var(--text-1)', fontWeight: 600, marginBottom: '4px' }}>No active goals</p>
           <p style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>Click "+ New Goal" to start tracking your savings</p>
         </div>
@@ -302,8 +305,9 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
 
                     {/* Smart suggestion */}
                     {suggestion && (
-                      <div style={{ padding: '8px 12px', borderRadius: 'var(--radius-md)', background: 'var(--surface-2)', marginBottom: '12px' }}>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-2)' }}>💡 {suggestion}</span>
+                      <div style={{ padding: '8px 12px', borderRadius: 'var(--radius-md)', background: 'var(--surface-2)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Lightbulb size={14} style={{ color: 'var(--text-2)' }} />
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-2)' }}>{suggestion}</span>
                       </div>
                     )}
 
@@ -320,13 +324,13 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
                             autoFocus
                           />
                           <button className="btn btn-primary" style={{ fontSize: '0.82rem' }} onClick={() => addMoney(goal._id)}>Add</button>
-                          <button className="btn btn-secondary" style={{ fontSize: '0.82rem' }} onClick={() => { setAddMoneyId(null); setAddMoneyAmount(''); setAddMoneyError(''); }}>✕</button>
+                          <button className="btn btn-secondary" style={{ fontSize: '0.82rem' }} onClick={() => { setAddMoneyId(null); setAddMoneyAmount(''); setAddMoneyError(''); }}><X size={14} /></button>
                         </div>
                         {addMoneyError && <span className="field-error">{addMoneyError}</span>}
                       </div>
                     ) : (
-                      <button className="btn btn-primary" style={{ width: '100%', fontSize: '0.85rem' }} onClick={() => setAddMoneyId(goal._id)}>
-                        + Add Money
+                      <button className="btn btn-primary" style={{ width: '100%', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }} onClick={() => setAddMoneyId(goal._id)}>
+                        <Plus size={16} /> Add Money
                       </button>
                     )}
                   </>
@@ -340,14 +344,18 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
       {/* Completed Goals */}
       {completed.length > 0 && (
         <>
-          <p className="section-kicker" style={{ marginBottom: '12px' }}>COMPLETED GOALS 🎉 ({completed.length})</p>
+          <p className="section-kicker" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            COMPLETED GOALS <CheckCircle size={16} style={{ color: '#22c55e' }} /> ({completed.length})
+          </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', opacity: 0.75 }}>
             {completed.map(goal => (
               <div key={goal._id} className="card" style={{ padding: '20px', borderLeft: '4px solid #22c55e' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: '0 0 4px', color: 'var(--text-1)', fontSize: '1rem', fontWeight: 700, textDecoration: 'line-through' }}>{goal.name}</h3>
-                    <span style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: 600 }}>✅ Goal reached — {currency}{goal.targetAmount.toLocaleString('en-IN')}</span>
+                    <span style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <CheckCircle size={14} /> Goal reached — {currency}{goal.targetAmount.toLocaleString('en-IN')}
+                    </span>
                   </div>
                   <button className="btn btn-danger" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={() => deleteGoal(goal._id)}>Delete</button>
                 </div>

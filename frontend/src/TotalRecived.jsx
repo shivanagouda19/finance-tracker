@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Wallet } from 'lucide-react';
 
 const SOURCES = [
   { label: "Salary", color: "#22c55e" },
@@ -259,7 +260,7 @@ export default function TotalRecived({ token, onUnauthorized, setTotalRecived, i
             alignItems: 'center',
             gap: '10px'
           }}>
-            <span style={{ fontSize: '2.5rem' }}>💰</span>
+            <Wallet size={48} strokeWidth={1.5} style={{ color: 'var(--text-2)' }} />
             <span style={{ fontWeight: 600, color: 'var(--text-1)' }}>No income recorded</span>
             <span style={{ fontSize: '0.85rem' }}>Add your first income above</span>
           </li>

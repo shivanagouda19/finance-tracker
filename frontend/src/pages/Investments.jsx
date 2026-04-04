@@ -140,12 +140,12 @@ export default function Investments() {
       if (data.error === 'TOKEN_EXPIRED') {
         setTokenExpired(true);
         setConnected(false);
-        setImportMsg('❌ Session expired. Please reconnect.');
+        setImportMsg('Session expired. Please reconnect.');
         return;
       }
       if (data.error) throw new Error(data.error);
-      setImportMsg(`✅ Imported ${data.imported} trade(s) to your records!`);
-    } catch (e) { setImportMsg(`❌ ${e.message}`); }
+      setImportMsg(`Imported ${data.imported} trade(s) to your records!`);
+    } catch (e) { setImportMsg(`${e.message}`); }
     setImporting(false);
   };
 
@@ -163,7 +163,7 @@ export default function Investments() {
       {/* Token expired banner */}
       {tokenExpired && (
         <div className="angel-expired-banner">
-          ⏰ Your Angel One session has expired (tokens last 24 hours). Please reconnect with your credentials.
+          Your Angel One session has expired (tokens last 24 hours). Please reconnect with your credentials.
         </div>
       )}
 
@@ -193,7 +193,7 @@ export default function Investments() {
 
       {/* Connect form */}
       <div className="angel-form-card">
-        <h3>🔗 Connect Angel One</h3>
+        <h3>Connect Angel One</h3>
         <p className="angel-form-note">Your credentials are used once to get a token and never stored. Tokens expire in 24 hours.</p>
         {error && <div className="inv-error">{error}</div>}
         <div className="angel-form-grid">
@@ -207,11 +207,11 @@ export default function Investments() {
           </div>
           <div className="angel-field" style={{ gridColumn: '1 / -1' }}>
             <label>TOTP Secret</label>
-            <input placeholder="32-char key from Enable TOTP page" value={form.totpSecret} onChange={e => setForm({...form, totpSecret: e.target.value})} />
+            <input placeholder="26-char key from Enable TOTP page" value={form.totpSecret} onChange={e => setForm({...form, totpSecret: e.target.value})} />
           </div>
         </div>
         <button className="import-btn" onClick={saveCredentials} disabled={saving}>
-          {saving ? 'Connecting...' : '🔗 Connect Account'}
+          {saving ? 'Connecting...' : 'Connect Account'}
         </button>
       </div>
     </div>
@@ -253,7 +253,7 @@ export default function Investments() {
       {tab === 'trades' && (
         <div className="inv-import-row">
           <button className="import-btn" onClick={importTrades} disabled={importing}>
-            {importing ? 'Importing...' : '⬇ Import Trades to Records'}
+            {importing ? 'Importing...' : 'Import Trades to Records'}
           </button>
           {importMsg && <span className="import-msg">{importMsg}</span>}
         </div>
@@ -261,13 +261,13 @@ export default function Investments() {
 
       {error === 'MARKET_CLOSED' ? (
         <div className="market-closed-box">
-          <div className="market-closed-icon">🕐</div>
+          {/* <div className="market-closed-icon">🕐</div> */}
           <h4>Market is Closed</h4>
           <p>Holdings data is available during market hours</p>
           <span>Monday - Friday, 9:15 AM - 3:30 PM IST</span>
         </div>
       ) : error ? (
-        <div className="inv-error">⚠️ {error}</div>
+        <div className="inv-error">{error}</div>
       ) : null}
       {loading && <div className="inv-loading">Loading...</div>}
 
