@@ -1,5 +1,8 @@
 //sever.js
-require('dotenv').config();
+if (process.env.NODE_ENV != "production") {
+require("dotenv").config();
+}
+
 const express = require("express");
 const mongoose = require("mongoose");
 const User = require("./models/User");
@@ -13,7 +16,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const JWT_SECRET = process.env.JWT_SECRET || "SECRET_KEY";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
+const dburl = process.env.DBURL
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -41,7 +44,7 @@ app.use(cors());
 app.use(express.json());
 
 // connect MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/expenses");
+mongoose.connect( dburl ||"mongodb://127.0.0.1:27017/expenses");
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB connected");

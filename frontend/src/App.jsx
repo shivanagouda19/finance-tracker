@@ -299,11 +299,9 @@ function AppContent({
             </button>
           </div> */}
 
-          <header className="app-header auth-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <img src="/src/images/logo.png" alt="FinTrack" style={{ width: '220px', objectFit: 'contain' }} />
-            <p style={{ color: 'var(--text-2)', margin: 0 }}>
-              {isLoginMode ? "Welcome back — log in to continue" : "Create your account to get started"}
-            </p>
+          <header className="app-header auth-header">
+            <h1>FinTrack</h1>
+            <p>{isLoginMode ? "Welcome back — log in to continue" : "Create your account to get started"}</p>
           </header>
 
           <section className="card auth-card">

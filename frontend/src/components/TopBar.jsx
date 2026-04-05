@@ -42,6 +42,7 @@ export default function TopBar({ token, alerts, theme, toggleTheme }) {
       alignItems: 'center',
       justifyContent: 'flex-end',
       padding: '0 24px',
+      paddingLeft: window.innerWidth <= 768 ? '56px' : undefined,
       zIndex: 99
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

@@ -193,7 +193,7 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
       {showForm && (
         <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
           <h3 style={{ margin: '0 0 16px', color: 'var(--text-1)' }}>Create New Goal</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+          <div className="new-goal-form" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <input placeholder="Goal name (e.g. New Laptop)" value={name} onChange={e => { setName(e.target.value); setFormErrors(prev => ({ ...prev, name: '' })); }} />
               {formErrors.name && <span className="field-error">{formErrors.name}</span>}
@@ -207,9 +207,18 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
               {formErrors.savedAmount && <span className="field-error">{formErrors.savedAmount}</span>}
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '12px' }}>
+          <div className="new-goal-form" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '12px' }}>
             <select value={category} onChange={e => setCategory(e.target.value)}
-              style={{ padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)', fontSize: '0.9rem' }}>
+              style={{ 
+                width: '100%',
+                padding: '0.6rem 0.75rem', 
+                borderRadius: 'var(--radius-md)', 
+                border: '1px solid var(--border)', 
+                background: 'var(--surface-2)', 
+                color: 'var(--text-1)', 
+                fontSize: '0.9rem',
+                cursor: 'pointer'
+              }}>
               {GOAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -217,7 +226,7 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
                 style={{ padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)', fontSize: '0.9rem' }} />
               {formErrors.targetDate && <span className="field-error">{formErrors.targetDate}</span>}
             </div>
-            <button className="btn btn-primary" onClick={addGoal}>Create Goal</button>
+            <button className="btn btn-primary create-btn" onClick={addGoal}>Create Goal</button>
           </div>
         </div>
       )}
@@ -234,7 +243,7 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
           <p style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>Click "+ New Goal" to start tracking your savings</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+        <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
           {active.map(goal => {
             const percent = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
             const suggestion = smartSuggestion(goal);
@@ -254,7 +263,15 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
                       {editErrors.targetAmount && <span className="field-error">{editErrors.targetAmount}</span>}
                     </div>
                     <select value={editingGoal.category} onChange={e => setEditingGoal(p => ({ ...p, category: e.target.value }))}
-                      style={{ padding: '0.6rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-1)' }}>
+                      style={{ 
+                        width: '100%',
+                        padding: '0.6rem', 
+                        borderRadius: 'var(--radius-md)', 
+                        border: '1px solid var(--border)', 
+                        background: 'var(--surface-2)', 
+                        color: 'var(--text-1)',
+                        cursor: 'pointer'
+                      }}>
                       {GOAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -347,7 +364,7 @@ export default function Goals({ token, onUnauthorized, currency = '₹' }) {
           <p className="section-kicker" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             COMPLETED GOALS <CheckCircle size={16} style={{ color: '#22c55e' }} /> ({completed.length})
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', opacity: 0.75 }}>
+          <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', opacity: 0.75 }}>
             {completed.map(goal => (
               <div key={goal._id} className="card" style={{ padding: '20px', borderLeft: '4px solid #22c55e' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

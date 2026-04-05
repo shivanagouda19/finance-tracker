@@ -420,6 +420,38 @@ input:focus {
   transform: translateY(-1px);
 }
 
+/* ─── Select Dropdowns ────────────────────────────────────── */
+select {
+  background: var(--surface-2) !important;
+  color: var(--text-1) !important;
+  border: 1px solid var(--border) !important;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+select:focus {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 3px var(--teal-glow);
+}
+
+select option {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+/* ─── Form Layouts ───────────────────────────────────────── */
+.upcoming-add-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 8px;
+}
+
+.new-goal-form {
+  display: grid;
+  gap: 12px;
+}
+
 /* ─── Buttons ─────────────────────────────────────────────── */
 button { font-family: var(--font-body); }
 
@@ -1083,3 +1115,236 @@ button { font-family: var(--font-body); }
   .btn-large { padding: 0.7rem 1.5rem; font-size: 0.9rem; }
 }
 @media (max-width: 600px) { .investments-page { padding: 1rem; } .inv-summary { flex-direction: column; } .angel-form-grid { grid-template-columns: 1fr; } .about-page { padding: 1rem; } }
+
+/* ── Hamburger Button ─────────────────────────── */
+.hamburger-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text-1);
+}
+
+/* ── Sidebar Overlay ─────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}
+
+/* ── Mobile Responsive ─────────────────────────── */
+@media (max-width: 768px) {
+  /* Show hamburger */
+  .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Show overlay when sidebar open */
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Sidebar hidden by default on mobile */
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    z-index: 999;
+    transition: left 0.3s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+  }
+
+  /* Sidebar visible when open */
+  .sidebar.sidebar-open {
+    left: 0;
+  }
+
+  /* Main content takes full width */
+  .main-content {
+    margin-left: 0 !important;
+    padding: 1rem;
+    padding-top: 60px; /* space for hamburger button */
+  }
+
+  /* TopBar adjustment */
+  .topbar {
+    left: 0 !important;
+    width: 100% !important;
+    padding-left: 56px; /* space for hamburger */
+  }
+
+  /* Dashboard cards stack vertically */
+  .overview-cards {
+    flex-direction: column;
+  }
+
+  /* Tables scroll horizontally */
+  .inv-table-wrap,
+  table {
+    overflow-x: auto;
+    display: block;
+  }
+
+  /* Forms stack vertically */
+  .angel-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Goals grid */
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Investments summary */
+  .inv-summary {
+    flex-direction: column;
+  }
+
+  /* About page feature grid */
+  .about-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Page titles */
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  /* Auth page */
+  .auth-app {
+    padding: 20px 16px !important;
+  }
+
+  /* Profile page */
+  .password-reset-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* ── Goals Page Mobile ─────────────────────────── */
+  .goals-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Calendar Page Mobile ─────────────────────────── */
+  .calendar-layout {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+
+  .react-calendar {
+    width: 100% !important;
+    font-size: 0.8rem;
+  }
+
+  .react-calendar__month-view__weekdays__weekday {
+    font-size: 0.7rem !important;
+    padding: 4px 2px !important;
+  }
+
+  .react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+  }
+
+  .react-calendar__tile {
+    padding: 6px 4px !important;
+    font-size: 0.8rem !important;
+    min-width: 32px;
+  }
+
+  /* ── Upcoming Payments Mobile ─────────────────────────── */
+  .upcoming-add-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .upcoming-add-form input,
+  .upcoming-add-form select,
+  .upcoming-add-form button {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .payment-item-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    margin-top: 0.75rem !important;
+  }
+
+  .payment-item-actions button {
+    width: 100% !important;
+  }
+
+  .card > div[style*="justify-content: space-between"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* ── Goals Page Mobile ─────────────────────────── */
+  .new-goal-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .new-goal-form input,
+  .new-goal-form select,
+  .new-goal-form button {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .new-goal-form .create-btn {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.75rem;
+    padding-top: 60px;
+  }
+
+  .inv-tabs {
+    flex-wrap: wrap;
+  }
+
+  .inv-import-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* ── Goals Page Small Mobile ─────────────────────────── */
+  .card {
+    padding: 1rem;
+  }
+
+  /* ── Calendar Page Small Mobile ─────────────────────────── */
+  .react-calendar {
+    font-size: 0.75rem;
+  }
+
+  .react-calendar__month-view__weekdays__weekday {
+    font-size: 0.65rem !important;
+    padding: 2px 1px !important;
+  }
+
+  .react-calendar__tile {
+    padding: 4px 2px !important;
+    font-size: 0.75rem !important;
+    min-width: 28px;
+  }
+}

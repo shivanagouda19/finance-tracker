@@ -171,7 +171,7 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
       {/* Add form */}
       <div className="card" style={{ marginBottom: '24px', padding: '20px' }}>
         <h3 style={{ margin: '0 0 16px', color: 'var(--text-1)' }}>Add Payment</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '8px' }}>
+        <div className="upcoming-add-form">
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <input placeholder="Payment name" value={name} onChange={e => { setName(e.target.value); setFormErrors(prev => ({ ...prev, name: '' })); }} />
             {formErrors.name && <span className="field-error">{formErrors.name}</span>}
@@ -184,7 +184,20 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
             <input type="date" value={dueDate} onChange={e => { setDueDate(e.target.value); setFormErrors(prev => ({ ...prev, dueDate: '' })); }} />
             {formErrors.dueDate && <span className="field-error">{formErrors.dueDate}</span>}
           </div>
-          <select value={type} onChange={e => setType(e.target.value)}>
+          <select 
+            value={type} 
+            onChange={e => setType(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.6rem 0.9rem',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              background: 'var(--surface-2)',
+              color: 'var(--text-1)',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+            }}
+          >
             <option value="Bill">Bill</option>
             <option value="Debt">Debt</option>
           </select>
@@ -224,7 +237,7 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
             if (editingId === p._id) {
               return (
                 <div key={p._id} className="card" style={{ padding: '16px 20px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                  <div className="upcoming-add-form" style={{ marginBottom: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <input placeholder="Payment name" value={editName} onChange={e => { setEditName(e.target.value); setEditErrors(prev => ({ ...prev, name: '' })); }} />
                       {editErrors.name && <span className="field-error">{editErrors.name}</span>}
@@ -237,12 +250,25 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
                       <input type="date" value={editDueDate} onChange={e => { setEditDueDate(e.target.value); setEditErrors(prev => ({ ...prev, dueDate: '' })); }} />
                       {editErrors.dueDate && <span className="field-error">{editErrors.dueDate}</span>}
                     </div>
-                    <select value={editType} onChange={e => setEditType(e.target.value)}>
+                    <select 
+                      value={editType} 
+                      onChange={e => setEditType(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '0.6rem 0.9rem',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)',
+                        background: 'var(--surface-2)',
+                        color: 'var(--text-1)',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                      }}
+                    >
                       <option value="Bill">Bill</option>
                       <option value="Debt">Debt</option>
                     </select>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                  <div className="payment-item-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                     <button className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => saveEdit(p._id)}>Save</button>
                     <button className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={cancelEdit}>Cancel</button>
                   </div>
@@ -254,13 +280,13 @@ export default function UpcomingPayments({ token, onUnauthorized, onPaymentChang
               <div key={p._id} className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <span style={{ fontWeight: 600, color: 'var(--text-1)' }}>{p.name}</span>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '999px', background: typeColor[p.type] + '22', color: typeColor[p.type], border: `1px solid ${typeColor[p.type]}55` }}>{p.type}</span>
                     <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '999px', background: days.color + '22', color: days.color, border: `1px solid ${days.color}55` }}>{days.label}</span>
                   </div>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>Due: {new Date(p.dueDate).toLocaleDateString('en-IN')}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="payment-item-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-1)' }}>{currency}{p.amount}</span>
                   <button className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => startEdit(p)}>Edit</button>
                   <button className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => markPaid(p._id)}>Mark Paid</button>

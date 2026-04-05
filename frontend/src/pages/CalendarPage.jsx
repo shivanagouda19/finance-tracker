@@ -99,7 +99,7 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [], cur
         View upcoming payments by date
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
+      <div className="calendar-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
         {/* Calendar */}
         <div className="card" style={{ padding: '20px' }}>
           <style>{`
@@ -136,6 +136,7 @@ export default function CalendarPage({ token, onUnauthorized, expenses = [], cur
             }
             .react-calendar__month-view__weekdays abbr {
               text-decoration: none;
+              cursor: help;
             }
             .react-calendar__tile {
               background: transparent !important;
