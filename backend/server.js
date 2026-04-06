@@ -12,20 +12,23 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const speakeasy = require('speakeasy');
-const { Resend } = require('resend');
+const brevo = require('@getbrevo/brevo');
 const crypto = require('crypto');
 const JWT_SECRET = process.env.JWT_SECRET || "SECRET_KEY";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const dburl = process.env.DBURL
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+let apiInstance = new brevo.TransactionalEmailsApi();
+let apiKey = apiInstance.authentications['apiKey'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
 const sendEmail = async (to, subject, html) => {
-  await resend.emails.send({
-    from: 'FinTrack <onboarding@resend.dev>',
-    to,
-    subject,
-    html,
-  });
+  let sendSmtpEmail = new brevo.SendSmtpEmail();
+  sendSmtpEmail.subject = subject;
+  sendSmtpEmail.htmlContent = html;
+  sendSmtpEmail.sender = { name: 'FinTrack', email: process.env.EMAIL_USER };
+  sendSmtpEmail.to = [{ email: to }];
+  await apiInstance.sendTransacEmail(sendSmtpEmail);
 };
 
 app.use(cors());
