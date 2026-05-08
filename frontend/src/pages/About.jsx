@@ -32,8 +32,12 @@ export default function About({ theme, toggleTheme, onNavigateToAuth }) {
         <div className="landing-nav-content">
           <h2 className="landing-logo">FinTrack</h2>
           <div className="landing-nav-actions">
-            <button className="btn btn-secondary theme-toggle" onClick={toggleTheme}>
-              {theme === "dark" ? <><SunIconComponent /> Light</> : <><MoonIconComponent /> Dark</>}
+            <button
+              className="btn btn-secondary theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <SunIconComponent /> : <MoonIconComponent />}
             </button>
             <button className="btn btn-secondary" onClick={() => onNavigateToAuth('login')}>
               Log In

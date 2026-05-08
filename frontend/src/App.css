@@ -947,6 +947,8 @@ button { font-family: var(--font-body); }
 .landing-page {
   min-height: 100vh;
   background: var(--surface-0);
+  width: 100%;
+  overflow-x: clip;
 }
 .landing-nav {
   position: sticky;
@@ -963,6 +965,8 @@ button { font-family: var(--font-body); }
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
 }
 .landing-logo {
   font-size: 1.3rem;
@@ -972,8 +976,16 @@ button { font-family: var(--font-body); }
 }
 .landing-nav-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 8px;
   align-items: center;
+  flex-shrink: 0;
+}
+.theme-toggle {
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 999px;
 }
 .landing-hero {
   padding: 5rem 2rem;
@@ -1103,7 +1115,20 @@ button { font-family: var(--font-body); }
   margin: 0;
 }
 @media (max-width: 768px) {
-  .landing-nav-content { padding: 1rem; }
+  .landing-nav-content {
+    padding: 0.9rem 1rem;
+  }
+
+  .landing-logo {
+    font-size: 1.15rem;
+  }
+
+  .landing-nav-actions .btn {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
   .landing-hero { padding: 3rem 1rem; }
   .landing-hero-title { font-size: 2.5rem; }
   .landing-hero-subtitle { font-size: 1rem; }
@@ -1111,8 +1136,30 @@ button { font-family: var(--font-body); }
   .landing-features-grid { grid-template-columns: 1fr; }
   .landing-cta { padding: 3rem 1rem; }
   .landing-cta-title { font-size: 2rem; }
-  .landing-nav-actions { gap: 0.5rem; }
   .btn-large { padding: 0.7rem 1.5rem; font-size: 0.9rem; }
+}
+
+@media (max-width: 520px) {
+  .landing-nav-content {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .landing-logo {
+    font-size: 1.05rem;
+  }
+
+  .landing-nav-actions .btn {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+
+  .landing-hero-title {
+    font-size: 2rem;
+  }
+
+  .landing-cta-title {
+    font-size: 1.8rem;
+  }
 }
 @media (max-width: 600px) { .investments-page { padding: 1rem; } .inv-summary { flex-direction: column; } .angel-form-grid { grid-template-columns: 1fr; } .about-page { padding: 1rem; } }
 
